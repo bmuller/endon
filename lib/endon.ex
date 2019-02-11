@@ -4,7 +4,7 @@ defmodule Endon do
   """
 
   defmacro __using__(opts \\ []) do
-    repo = Keyword.get(opts, :repo, Application.get_env(:ektos, :repo))
+    repo = Keyword.get(opts, :repo, Application.get_env(:endon, :repo))
 
     quote bind_quoted: [repo: repo] do
       @repo repo
