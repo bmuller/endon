@@ -1,10 +1,8 @@
-# Endon
-[![Build Status](https://secure.travis-ci.org/bmuller/endon.png?branch=master)](https://travis-ci.org/bmuller/endon)
-[![Hex pm](http://img.shields.io/hexpm/v/endon.svg?style=flat)](https://hex.pm/packages/endon)
+# Overview
 
 Endon is an Elixir library that provides helper functions for [Ecto](https://hexdocs.pm/ecto/getting-started.html#content), with inspiration from Ruby on Rails' [ActiveRecord](https://guides.rubyonrails.org/active_record_basics.html).  It's designed to be used within a module that is an `Ecto.Schema` and provides helpful functions.
 
-## But why, isn't Ecto great?
+## But why, Ecto is great
 Yes, Ecto is great.  But there are a few things that are really annoying, and a little syntactic sugar can go a long way.
 
 1. What if I want to [paginate through a massive query](https://api.rubyonrails.org/classes/ActiveRecord/Batches.html#method-i-find_in_batches)?
@@ -57,7 +55,7 @@ defmodule User do
 end
 ```
 
-Once Endon has been included, you can immediately use the helpful methods.
+Once Endon has been included, you can immediately use [the many helpful methods](`Endon`) provided in the `Endon` module.
 
 ``` elixir
 # get all users

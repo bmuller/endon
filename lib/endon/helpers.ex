@@ -1,4 +1,5 @@
 defmodule Endon.Helpers do
+  @moduledoc false
   import Ecto.Query, only: [from: 2]
   alias Ecto.Query
 
@@ -60,7 +61,7 @@ defmodule Endon.Helpers do
     find(repo, module, [id], opts) |> hd
   end
 
-  def find_or_create(repo, module, conditions) do
+  def find_or_create_by(repo, module, conditions) do
     case where(repo, module, Enum.into(conditions, []), limit: 1) do
       [result] ->
         {:ok, result}
@@ -80,22 +81,24 @@ defmodule Endon.Helpers do
   defp batch_iter(repo, module, start, finish, limit, conditions, func, opts) do
     [pk] = module.__schema__(:primary_key)
 
+    base = module |> add_where(conditions)
+
     query =
       if is_nil(finish) do
-        from(x in module,
+        from(x in base,
           where: field(x, ^pk) >= ^start,
           limit: ^limit,
           order_by: [asc: ^pk]
         )
       else
-        from(x in module,
+        from(x in base,
           where: field(x, ^pk) >= ^start and field(x, ^pk) <= ^finish,
           limit: ^limit,
           order_by: [asc: ^pk]
         )
       end
 
-    results = query |> add_where(conditions) |> add_opts(opts, [:preload]) |> repo.all
+    results = query |> add_opts(opts, [:preload]) |> repo.all
 
     cond do
       length(results) == limit ->
@@ -109,6 +112,13 @@ defmodule Endon.Helpers do
       true ->
         nil
     end
+  end
+
+  def find_by(repo, module, conditions, opts) do
+    module
+    |> add_where(conditions)
+    |> add_opts([limit: 1] ++ opts, [:limit, :preload])
+    |> repo.one
   end
 
   def find_each(repo, module, func, opts, conditions) do
@@ -130,44 +140,17 @@ defmodule Endon.Helpers do
     |> repo.all
   end
 
-  def count(repo, module, conditions) do
-    module
-    |> add_where(conditions)
-    |> Query.select([], count(1))
-    |> repo.one
-  end
+  def aggregate(repo, module, column, aggregate, conditions) do
+    [pk] = module.__schema__(:primary_key)
 
-  def sum(repo, module, column, conditions) do
     module
     |> add_where(conditions)
-    |> Query.select([x], sum(field(x, ^column)))
-    |> repo.one
-  end
-
-  def avg(repo, module, column, conditions) do
-    module
-    |> add_where(conditions)
-    |> Query.select([x], avg(field(x, ^column)))
-    |> repo.one
-  end
-
-  def min(repo, module, column, conditions) do
-    module
-    |> add_where(conditions)
-    |> Query.select([x], sum(field(x, ^column)))
-    |> repo.one
-  end
-
-  def max(repo, module, column, conditions) do
-    module
-    |> add_where(conditions)
-    |> Query.select([x], sum(field(x, ^column)))
-    |> repo.one
+    |> repo.aggregate(aggregate, column || pk)
   end
 
   def update(repo, module, struct, params) do
     struct
-    |> module.changeset(params)
+    |> changeset(params, module)
     |> repo.update()
   end
 
@@ -204,7 +187,7 @@ defmodule Endon.Helpers do
 
   def create(repo, module, params) do
     module.__struct__
-    |> module.changeset(params)
+    |> changeset(params, module)
     |> repo.insert()
   end
 
@@ -221,6 +204,14 @@ defmodule Endon.Helpers do
   end
 
   # private
+  defp changeset(struct, attributes, module) do
+    if Kernel.function_exported?(module, :changeset, 2) do
+      module.changeset(struct, attributes)
+    else
+      Ecto.Changeset.change(struct, attributes)
+    end
+  end
+
   defp first_or_nil([]), do: nil
   defp first_or_nil([first | _]), do: first
 
@@ -240,7 +231,9 @@ defmodule Endon.Helpers do
   defp apply_opt(query, :offset, offset), do: Query.offset(query, ^offset)
 
   defp add_where(query, []), do: query
-  defp add_where(_, %Ecto.Query{} = query), do: query
+  # this works because we only ever call add_where with a first argument
+  # of the struct itself
+  defp add_where(_query, %Ecto.Query{} = conditions), do: conditions
 
   defp add_where(query, [{f, v} | rest]) when is_list(v) do
     from(x in query, where: field(x, ^f) in ^v)
