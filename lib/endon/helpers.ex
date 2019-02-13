@@ -3,7 +3,7 @@ defmodule Endon.Helpers do
   import Ecto.Query, only: [from: 2]
   alias Ecto.Query
 
-  alias Endon.{ValidationError, RecordNotFoundError}
+  alias Endon.{RecordNotFoundError, ValidationError}
 
   def all(repo, module, opts) do
     module
@@ -58,7 +58,7 @@ defmodule Endon.Helpers do
   end
 
   def find(repo, module, id, opts) do
-    find(repo, module, [id], opts) |> hd
+    repo |> find(module, [id], opts) |> hd
   end
 
   def find_or_create_by(repo, module, conditions) do
@@ -222,7 +222,7 @@ defmodule Endon.Helpers do
       raise ArgumentError, message: "Option :#{f} is not valid in this context"
     end
 
-    apply_opt(query, f, v) |> add_opts(rest, allowed_opts)
+    query |> apply_opt(f, v) |> add_opts(rest, allowed_opts)
   end
 
   defp apply_opt(query, :order_by, order_by), do: Query.order_by(query, ^order_by)
@@ -236,13 +236,13 @@ defmodule Endon.Helpers do
   defp add_where(_query, %Ecto.Query{} = conditions), do: conditions
 
   defp add_where(query, [{f, v} | rest]) when is_list(v) do
-    from(x in query, where: field(x, ^f) in ^v)
-    |> add_where(rest)
+    query = from(x in query, where: field(x, ^f) in ^v)
+    query |> add_where(rest)
   end
 
   defp add_where(query, [{f, nil} | rest]) do
-    from(x in query, where: is_nil(field(x, ^f)))
-    |> add_where(rest)
+    query = from(x in query, where: is_nil(field(x, ^f)))
+    query |> add_where(rest)
   end
 
   defp add_where(query, [{f, v} | rest]) do
