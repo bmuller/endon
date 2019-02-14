@@ -64,6 +64,10 @@ user = User.all()
 # get a user by id
 user = User.find(1)
 
+# Iterate through all users in the DB efficiently (paginated, results are queried in
+# batches) and process them using a Stream
+Enum.each(User.stream_find(), &User.do_some_processing/1)
+
 # get a user by an attribute
 user = User.find_by(name: "billy")
 

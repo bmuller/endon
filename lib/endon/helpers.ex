@@ -71,46 +71,45 @@ defmodule Endon.Helpers do
     end
   end
 
-  def find_in_batches(repo, module, func, opts, conditions) do
+  def stream_find(repo, module, conditions, opts) do
+    [pk] = module.__schema__(:primary_key)
     {start, opts} = Keyword.pop(opts, :start, 0)
     {finish, opts} = Keyword.pop(opts, :finish)
     {limit, opts} = Keyword.pop(opts, :batch_size, 1000)
-    batch_iter(repo, module, start, finish, limit, conditions, func, opts)
-  end
-
-  defp batch_iter(repo, module, start, finish, limit, conditions, func, opts) do
-    [pk] = module.__schema__(:primary_key)
-
-    base = module |> add_where(conditions)
+    basequery = module |> add_where(conditions) |> add_opts(opts, [:preload])
 
     query =
       if is_nil(finish) do
-        from(x in base,
-          where: field(x, ^pk) >= ^start,
-          limit: ^limit,
-          order_by: [asc: ^pk]
-        )
+        from(x in basequery, limit: ^limit, order_by: [asc: ^pk])
       else
-        from(x in base,
-          where: field(x, ^pk) >= ^start and field(x, ^pk) <= ^finish,
-          limit: ^limit,
-          order_by: [asc: ^pk]
-        )
+        from(x in basequery, where: field(x, ^pk) <= ^finish, limit: ^limit, order_by: [asc: ^pk])
       end
 
-    results = query |> add_opts(opts, [:preload]) |> repo.all
+    initparams = %{
+      pk: pk,
+      repo: repo,
+      start: start,
+      query: query,
+      more_possible: true,
+      limit: limit
+    }
 
-    cond do
-      length(results) == limit ->
-        func.(results)
+    Stream.resource(fn -> initparams end, &stream_iter/1, & &1)
+  end
+
+  defp stream_iter(%{more_possible: false}), do: {:halt, nil}
+
+  defp stream_iter(
+         %{pk: pk, repo: repo, start: start, query: query, more_possible: true, limit: limit} =
+           params
+       ) do
+    case repo.all(from(x in query, where: field(x, ^pk) >= ^start)) do
+      [] ->
+        {:halt, nil}
+
+      results ->
         lastid = Map.get(hd(Enum.take(results, -1)), pk)
-        batch_iter(repo, module, lastid + 1, finish, limit, conditions, func, opts)
-
-      length(results) > 0 ->
-        func.(results)
-
-      true ->
-        nil
+        {results, %{params | start: lastid + 1, more_possible: length(results) == limit}}
     end
   end
 
@@ -119,18 +118,6 @@ defmodule Endon.Helpers do
     |> add_where(conditions)
     |> add_opts([limit: 1] ++ opts, [:limit, :preload])
     |> repo.one
-  end
-
-  def find_each(repo, module, func, opts, conditions) do
-    find_in_batches(
-      repo,
-      module,
-      fn batch ->
-        Enum.each(batch, func)
-      end,
-      opts,
-      conditions
-    )
   end
 
   def where(repo, module, conditions, opts) do

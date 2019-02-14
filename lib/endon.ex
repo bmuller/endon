@@ -103,11 +103,11 @@ defmodule Endon do
   def find_by(conditions, opts \\ []), do: doc!([conditions, opts])
 
   @doc """
-  Calls given function with batches of records at a time.
+  Create a `Stream` that queries the data store in batches for matching records.
 
-  This is useful for paginating through a very large database in chunks.  The given
-  function will be called with lists of matching records in batches until all matches
-  have been found.
+  This is useful for paginating through a very large result set in chunks.  The `Stream`
+  is a composable, lazy enumerable that allows you to iterate through what could be a
+  very large number of records efficiently.
 
   `opts` can be any of:
   * batch_size: Specifies the size of the batch. Defaults to 1000.
@@ -116,40 +116,19 @@ defmodule Endon do
 
   And `conditions` are anyting accepted by `where/2` (including a `Ecto.Query.t/0`).
 
+  This function will only work for types that have a primary key that is an integer.
+
   ## Examples
       
-      iex> User.find_in_batches(fn batch ->
-      iex>   Enun.each(batch, fn user ->
-      iex>     User.do_some_processing(user)
-      iex>   end)
-      iex> end)
+      iex> Enum.each(User.stream_find(), &User.do_some_processing/1)
 
       iex> query = from u in User, where: u.id > 100
-      iex> User.find_in_batches(fn batch ->
-      iex>   Enun.each(batch, fn user ->
-      iex>     User.do_some_processing(user)
-      iex>   end)
-      iex> end, [batch_size: 10], query)
-  """
-  @spec find_in_batches(function(), keyword(), keyword()) :: :ok
-  def find_in_batches(func, opts \\ [], conditions \\ []), do: doc!([func, opts, conditions])
-
-  @doc """
-  Exactly like `find_in_batches/3`, except the function is called once per result.
-
-  The underlying implementation uses `find_in_batches/3`, and then calls the function once per result.
-  These two examples are equivalent:
-
-      iex> User.find_in_batches(fn batch ->
-      iex>   Enun.each(batch, fn user ->
-      iex>     User.do_some_processing(user)
-      iex>   end)
+      iex> Enum.each(User.stream_find(query, batch_size: 10), fn user ->
+      iex>   User.do_some_processing(user)
       iex> end)
-
-      iex> User.find_each(User.do_some_processing/1)
   """
-  @spec find_each(function(), keyword(), keyword()) :: :ok
-  def find_each(func, opts \\ [], conditions \\ []), do: doc!([func, opts, conditions])
+  @spec stream_find(keyword(), keyword()) :: Enumerable.t()
+  def stream_find(conditions \\ [], opts \\ []), do: doc!([conditions, opts])
 
   @doc """
   Get a count of all records matching the conditions.
@@ -337,11 +316,8 @@ defmodule Endon do
       def find_by(conditions, opts \\ []),
         do: Helpers.find_by(@repo, __MODULE__, conditions, opts)
 
-      def find_in_batches(func, opts \\ [], conditions \\ []),
-        do: Helpers.find_in_batches(@repo, __MODULE__, func, opts, conditions)
-
-      def find_each(func, opts \\ [], conditions \\ []),
-        do: Helpers.find_each(@repo, __MODULE__, func, opts, conditions)
+      def stream_find(conditions \\ [], opts \\ []),
+        do: Helpers.stream_find(@repo, __MODULE__, conditions, opts)
 
       def aggregate(column, aggregate, conditions \\ []),
         do: Helpers.aggregate(@repo, __MODULE__, column, aggregate, conditions)
