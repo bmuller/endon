@@ -64,6 +64,9 @@ user = User.all()
 # get a user by id
 user = User.find(1)
 
+# get first user
+user = User.first()
+
 # Iterate through all users in the DB efficiently (paginated, results are queried in
 # batches) and process them using a Stream
 Enum.each(User.stream_where(), &User.do_some_processing/1)

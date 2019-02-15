@@ -159,17 +159,17 @@ defmodule Endon.Helpers do
     |> repo.update_all(set: params)
   end
 
-  def first(repo, module, opts) do
-    [pk] = module.__schema__(:primary_key)
-    opts = Keyword.merge([limit: 1, order_by: [asc: pk]], opts)
-    result = where(repo, module, [], opts)
+  def first(repo, module, conditions, opts) do
+    opts = Keyword.merge([limit: 1], opts)
+    result = where(repo, module, conditions, opts)
     if opts[:limit] == 1, do: first_or_nil(result), else: result
   end
 
-  def last(repo, module, opts) do
+  def last(repo, module, conditions, opts) do
     [pk] = module.__schema__(:primary_key)
-    opts = Keyword.merge([order_by: [desc: pk]], opts)
-    first(repo, module, opts)
+    opts = Keyword.merge([limit: 1, order_by: [desc: pk]], opts)
+    result = where(repo, module, conditions, opts)
+    if opts[:limit] == 1, do: first_or_nil(result), else: result
   end
 
   def create(repo, module, params) do

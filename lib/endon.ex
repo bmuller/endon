@@ -277,18 +277,26 @@ defmodule Endon do
   @doc """
   Get the first record, or `nil` if none are found.
 
+  Find the first record (or first N records if a `:limit` opt parameter is supplied).
+  If no order is defined it will order by primary key.
+
   `opts` can include `:limit` and `:order_by` (by default, orders by primary key ascending).
+  `conditions` can be anyting accepted by `where/2` (including a `Ecto.Query.t/0`).
   """
-  @spec first(keyword()) :: Ecto.Schema.t() | nil
-  def first(opts \\ []), do: doc!([opts])
+  @spec first(keyword(), keyword()) :: Ecto.Schema.t() | nil
+  def first(conditions \\ [], opts \\ []), do: doc!([conditions, opts])
 
   @doc """
   Get the last record, or `nil` if none are found.
 
+  Find the last record (or last N records if a `:limit` opt parameter is supplied).
+  If no order is defined it will order by primary key descending.
+
   `opts` can include `:limit` and `:order_by` (by default, orders by primary key descending).
+  `conditions` can be anyting accepted by `where/2` (including a `Ecto.Query.t/0`).
   """
-  @spec last(keyword()) :: Ecto.Schema.t() | nil
-  def last(opts \\ []), do: doc!([opts])
+  @spec last(keyword(), keyword()) :: Ecto.Schema.t() | nil
+  def last(conditions \\ [], opts \\ []), do: doc!([conditions, opts])
 
   defp doc!(_) do
     raise "The functions in Endon should not be invoked directly, they're for docs only"
@@ -356,8 +364,11 @@ defmodule Endon do
 
       def delete_where(conditions \\ []), do: Helpers.delete_where(@repo, __MODULE__, conditions)
 
-      def first(opts \\ []), do: Helpers.first(@repo, __MODULE__, opts)
-      def last(opts \\ []), do: Helpers.last(@repo, __MODULE__, opts)
+      def first(conditions \\ [], opts \\ []),
+        do: Helpers.first(@repo, __MODULE__, conditions, opts)
+
+      def last(conditions \\ [], opts \\ []),
+        do: Helpers.last(@repo, __MODULE__, conditions, opts)
     end
   end
 end

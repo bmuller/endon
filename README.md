@@ -63,6 +63,9 @@ Once Endon has been included, you can immediately use the helpful methods.
 # get all users
 user = User.all()
 
+# get first user
+user = User.first()
+
 # get a user by id
 user = User.find(1)
 
