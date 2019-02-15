@@ -120,15 +120,15 @@ defmodule Endon do
 
   ## Examples
       
-      iex> Enum.each(User.stream_find(), &User.do_some_processing/1)
+      iex> Enum.each(User.stream_where(), &User.do_some_processing/1)
 
       iex> query = from u in User, where: u.id > 100
-      iex> Enum.each(User.stream_find(query, batch_size: 10), fn user ->
+      iex> Enum.each(User.stream_where(query, batch_size: 10), fn user ->
       iex>   User.do_some_processing(user)
       iex> end)
   """
-  @spec stream_find(keyword(), keyword()) :: Enumerable.t()
-  def stream_find(conditions \\ [], opts \\ []), do: doc!([conditions, opts])
+  @spec stream_where(keyword(), keyword()) :: Enumerable.t()
+  def stream_where(conditions \\ [], opts \\ []), do: doc!([conditions, opts])
 
   @doc """
   Get a count of all records matching the conditions.
@@ -316,8 +316,8 @@ defmodule Endon do
       def find_by(conditions, opts \\ []),
         do: Helpers.find_by(@repo, __MODULE__, conditions, opts)
 
-      def stream_find(conditions \\ [], opts \\ []),
-        do: Helpers.stream_find(@repo, __MODULE__, conditions, opts)
+      def stream_where(conditions \\ [], opts \\ []),
+        do: Helpers.stream_where(@repo, __MODULE__, conditions, opts)
 
       def aggregate(column, aggregate, conditions \\ []),
         do: Helpers.aggregate(@repo, __MODULE__, column, aggregate, conditions)

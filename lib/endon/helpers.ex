@@ -71,7 +71,7 @@ defmodule Endon.Helpers do
     end
   end
 
-  def stream_find(repo, module, conditions, opts) do
+  def stream_where(repo, module, conditions, opts) do
     [pk] = module.__schema__(:primary_key)
     {start, opts} = Keyword.pop(opts, :start, 0)
     {finish, opts} = Keyword.pop(opts, :finish)
