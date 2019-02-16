@@ -43,22 +43,31 @@ defmodule Endon.Helpers do
     |> repo.delete_all
   end
 
-  def find(repo, module, ids, opts) when is_list(ids) do
-    [pk] = module.__schema__(:primary_key)
-    result = where(repo, module, [{pk, ids}], opts)
+  def find(repo, module, ids, opts) do
+    case fetch(repo, module, ids, opts) do
+      {:ok, result} ->
+        result
 
-    if length(result) == length(ids) do
-      result
-    else
-      sids = Enum.join(Enum.map(ids, &to_string/1), ", ")
-
-      raise RecordNotFoundError,
-        message: "One or more values for #{pk} in list (#{sids}) could not be found"
+      :error ->
+        [pk] = module.__schema__(:primary_key)
+        raise RecordNotFoundError, message: "One or more values for #{pk} could not be found"
     end
   end
 
-  def find(repo, module, id, opts) do
-    repo |> find(module, [id], opts) |> hd
+  def fetch(repo, module, ids, opts) when is_list(ids) do
+    [pk] = module.__schema__(:primary_key)
+    result = where(repo, module, [{pk, ids}], opts)
+    if length(result) == length(ids), do: {:ok, result}, else: :error
+  end
+
+  def fetch(repo, module, id, opts) do
+    case fetch(repo, module, [id], opts) do
+      {:ok, results} ->
+        {:ok, hd(results)}
+
+      :error ->
+        :error
+    end
   end
 
   def find_or_create_by(repo, module, conditions) do

@@ -68,6 +68,8 @@ defmodule Endon do
   @doc """
   Fetches one or more structs from the data store based on the primary key(s) given.
 
+  Much like `fetch/2`, except an error is raised if the record(s) can't be found.
+
   If one primary key is given, then one struct will be returned (or a `Endon.RecordNotFoundError`
   raised if a match isn't found).
 
@@ -79,6 +81,21 @@ defmodule Endon do
   """
   @spec find(integer() | list(integer()), keyword()) :: list(Ecto.Schema.t()) | Ecto.Schema.t()
   def find(id_or_ids, opts \\ []), do: doc!([id_or_ids, opts])
+
+  @doc """
+  Fetches one or more structs from the data store based on the primary key(s) given.
+
+  If one primary key is given, then one struct will be returned (or `:error` if not found)
+
+  If more than one primary key is given in a list, then all of the structs with those ids
+  will be returned (and `:error` will be returned if any one of the primary
+  keys can't be found).
+
+  The only option that matters here is `:preload`.
+  """
+  @spec fetch(integer() | list(integer()), keyword()) ::
+          {:ok, list(Ecto.Schema.t())} | {:ok, Ecto.Schema.t()} | :error
+  def fetch(id_or_ids, opts \\ []), do: doc!([id_or_ids, opts])
 
   @doc """
   Find or create a record based on specific attributes values.
@@ -314,6 +331,7 @@ defmodule Endon do
       def exists?(conditions), do: Helpers.exists?(@repo, __MODULE__, conditions)
 
       def find(id_or_ids, opts \\ []), do: Helpers.find(@repo, __MODULE__, id_or_ids, opts)
+      def fetch(id_or_ids, opts \\ []), do: Helpers.fetch(@repo, __MODULE__, id_or_ids, opts)
 
       def find_or_create_by(%{} = params),
         do: Helpers.find_or_create_by(@repo, __MODULE__, params)

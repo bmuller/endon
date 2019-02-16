@@ -1,7 +1,6 @@
 defmodule EndonTest do
   use ExUnit.Case
   alias Endon.{RecordNotFoundError, ValidationError}
-  # import Ecto.Query, only: [from: 2]
 
   describe "querying records should work" do
     test "when using where" do
@@ -12,6 +11,10 @@ defmodule EndonTest do
       assert UserSingle.where(id: 1, limit: 2) == [
                "from u0 in UserSingle, where: u0.id == ^1, where: u0.limit == ^2"
              ]
+    end
+
+    test "when using stream_where" do
+      assert Enum.to_list(UserNone.stream_where()) == []
     end
 
     test "when using find" do
@@ -25,6 +28,16 @@ defmodule EndonTest do
       assert_raise(RecordNotFoundError, fn ->
         UserNone.find(1)
       end)
+    end
+
+    test "when using fetch" do
+      assert UserSingle.fetch(1) == {:ok, "from u0 in UserSingle, where: u0.id in ^[1]"}
+
+      assert UserDouble.fetch([1, 2]) ==
+               {:ok, ["from u0 in UserDouble, where: u0.id in ^[1, 2]", nil]}
+
+      assert UserSingle.fetch([1, 2]) == :error
+      assert UserNone.fetch(1) == :error
     end
 
     test "when using exists" do
