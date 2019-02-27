@@ -2,6 +2,30 @@ defmodule EndonTest do
   use ExUnit.Case
   alias Endon.{RecordNotFoundError, ValidationError}
 
+  describe "building queries via scope" do
+    import UserHelpers
+    import Ecto.Query, only: [from: 2]
+
+    test "should return the correct query" do
+      result = UserSingle.scope(id: 1) |> i()
+      assert result == "from u0 in UserSingle, where: u0.id == ^1"
+    end
+
+    test "should build on a query successfully" do
+      query = from(x in UserSingle, where: x.id == 1)
+      result = query |> UserSingle.scope(org_id: 123) |> i()
+      assert result == "from u0 in UserSingle, where: u0.id == 1, where: u0.org_id == ^123"
+    end
+
+    test "should build on a query successfully and run in a where" do
+      query = from(x in UserSingle, where: x.id == 1)
+      result = query |> UserSingle.scope(org_id: 123) |> UserSingle.first()
+
+      assert result ==
+               "from u0 in UserSingle, where: u0.id == 1, where: u0.org_id == ^123, limit: ^1"
+    end
+  end
+
   describe "querying records should work" do
     test "when using where" do
       assert UserSingle.where(id: 1) == ["from u0 in UserSingle, where: u0.id == ^1"]

@@ -315,6 +315,35 @@ defmodule Endon do
   @spec last(keyword(), keyword()) :: Ecto.Schema.t() | nil
   def last(conditions \\ [], opts \\ []), do: doc!([conditions, opts])
 
+  @doc """
+  Take a query and add conditions (the same as `where/2` accepts).  
+  This will not actually run the query, so you will need
+  to pass the result to `where/2` or `Ecto.Repo.all/2`/`Ecto.Repo.one/2`.
+
+  For instance:
+
+      existing_query = from x in Post
+      Post.scope(existing_query, id: 1) |> Post.first()
+
+  This is just a helpful function to make adding conditions easier to an existing query.
+  """
+  @spec scope(Ecto.Query.t(), keyword()) :: Ecto.Query.t()
+  def scope(query, conditions), do: doc!([query, conditions])
+
+  @doc """
+  Create a query with the given conditions (the same as `where/2` accepts).
+  This will not actually run the query, so you will need
+  to pass the result to `where/2` or `Ecto.Repo.all/2`/`Ecto.Repo.one/2`.
+
+  For instance, this will just run one query to find a record with id 1 with name Bill.
+
+      Post.scope(id: 1) |> Post.scope(name: 'Bill') |> Post.first()
+
+  This is just a helpful function to make adding conditions easier to an existing `Ecto.Schema`
+  """
+  @spec scope(keyword()) :: Ecto.Query.t()
+  def scope(conditions), do: doc!([conditions])
+
   defp doc!(_) do
     raise "The functions in Endon should not be invoked directly, they're for docs only"
   end
@@ -324,6 +353,9 @@ defmodule Endon do
 
     quote bind_quoted: [repo: repo] do
       @repo repo
+
+      def scope(query, conditions), do: Helpers.scope(query, conditions)
+      def scope(conditions), do: Helpers.scope(__MODULE__, conditions)
 
       def all(opts \\ []), do: Helpers.all(@repo, __MODULE__, opts)
 

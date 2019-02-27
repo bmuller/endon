@@ -199,6 +199,10 @@ defmodule Endon.Helpers do
     end
   end
 
+  def scope(query, conditions) do
+    add_where(query, conditions)
+  end
+
   # private
   defp changeset(struct, attributes, module) do
     if Kernel.function_exported?(module, :changeset, 2) do
