@@ -136,12 +136,16 @@ defmodule Endon.Helpers do
     |> repo.all
   end
 
-  def aggregate(repo, module, column, aggregate, conditions) do
-    [pk] = module.__schema__(:primary_key)
+  def count(repo, module, conditions) do
+    query = module |> add_where(conditions)
+    cquery = from(r in query, select: count())
+    repo.one(cquery)
+  end
 
+  def aggregate(repo, module, column, aggregate, conditions) do
     module
     |> add_where(conditions)
-    |> repo.aggregate(aggregate, column || pk)
+    |> repo.aggregate(aggregate, column)
   end
 
   def update(repo, module, struct, params) do

@@ -26,6 +26,12 @@ defmodule EndonTest do
     end
   end
 
+  describe "aggregate functions should work" do
+    test "when using empty count" do
+      assert UserSingle.count() == "from u0 in UserSingle, select: count()"
+    end
+  end
+
   describe "querying records should work" do
     test "when using where" do
       assert UserSingle.where(id: 1) == ["from u0 in UserSingle, where: u0.id == ^1"]

@@ -148,12 +148,13 @@ defmodule Endon do
   def stream_where(conditions \\ [], opts \\ []), do: doc!([conditions, opts])
 
   @doc """
-  Get a count of all records matching the conditions.
+  Get a count of all records matching the conditions.  You can give an optional column;
+  if none is specified, then it's the equivalent of a `select count(*)`.
 
   `conditions` are anyting accepted by `where/2` (including a `Ecto.Query.t/0`).
   """
-  @spec count(keyword() | Ecto.Query.t()) :: integer()
-  def count(conditions \\ []), do: doc!([conditions])
+  @spec count(atom() | nil, keyword() | Ecto.Query.t()) :: integer()
+  def count(column \\ nil, conditions \\ []), do: doc!([column, conditions])
 
   @doc """
   Calculate the given aggregate over the given column.
@@ -380,7 +381,9 @@ defmodule Endon do
       def aggregate(column, aggregate, conditions \\ []),
         do: Helpers.aggregate(@repo, __MODULE__, column, aggregate, conditions)
 
-      def count(conditions \\ []), do: aggregate(nil, :count, conditions)
+      def count(column \\ nil, conditions \\ [])
+      def count(nil, conditions), do: Helpers.count(@repo, __MODULE__, conditions)
+      def count(column, conditions), do: aggregate(column, :count, conditions)
       def sum(column, conditions \\ []), do: aggregate(column, :sum, conditions)
       def avg(column, conditions \\ []), do: aggregate(column, :avg, conditions)
       def min(column, conditions \\ []), do: aggregate(column, :min, conditions)
