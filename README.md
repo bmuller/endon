@@ -4,6 +4,8 @@
 
 Endon is an Elixir library that provides helper functions for [Ecto](https://hexdocs.pm/ecto/getting-started.html#content), with inspiration from Ruby on Rails' [ActiveRecord](https://guides.rubyonrails.org/active_record_basics.html).  It's designed to be used within a module that is an `Ecto.Schema` and provides helpful functions.
 
+Full documentation can be found [here](https://hexdocs.pm/endon/overview.html).
+
 ## But why, isn't Ecto great?
 Yes, Ecto is great.  But there are a few things that are really annoying, and a little syntactic sugar can go a long way.
 
