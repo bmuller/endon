@@ -1,6 +1,7 @@
 # Endon
 [![Build Status](https://secure.travis-ci.org/bmuller/endon.png?branch=master)](https://travis-ci.org/bmuller/endon)
 [![Hex pm](http://img.shields.io/hexpm/v/endon.svg?style=flat)](https://hex.pm/packages/endon)
+[![API Docs](https://img.shields.io/badge/api-docs-lightgreen.svg?style=flat)](https://hexdocs.pm/endon/)
 
 Endon is an Elixir library that provides helper functions for [Ecto](https://hexdocs.pm/ecto/getting-started.html#content), with inspiration from Ruby on Rails' [ActiveRecord](https://guides.rubyonrails.org/active_record_basics.html).  It's designed to be used within a module that is an `Ecto.Schema` and provides helpful functions.
 
