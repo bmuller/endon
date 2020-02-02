@@ -21,8 +21,10 @@ defmodule Endon.Helpers do
     end
   end
 
-  def delete(repo, _module, struct) do
-    struct |> repo.delete()
+  def delete(repo, module, struct) do
+    struct
+    |> repo.delete()
+    |> delete_callbacks(module)
   end
 
   def delete!(repo, module, struct) do
@@ -152,6 +154,7 @@ defmodule Endon.Helpers do
     struct
     |> changeset(params, module)
     |> repo.update()
+    |> update_callbacks(module)
   end
 
   def update!(repo, module, struct, params) do
@@ -189,6 +192,7 @@ defmodule Endon.Helpers do
     module.__struct__
     |> changeset(params, module)
     |> repo.insert()
+    |> create_callbacks(module)
   end
 
   def create!(repo, module, params) do
@@ -208,6 +212,29 @@ defmodule Endon.Helpers do
   end
 
   # private
+  defp create_callbacks({:ok, thing} = result, module) do
+    module.after_create(thing)
+    module.after_save(thing)
+    result
+  end
+
+  defp create_callbacks(result, _module), do: result
+  
+  defp update_callbacks({:ok, thing} = result, module) do
+    module.after_update(thing)
+    module.after_save(thing)
+    result    
+  end
+  
+  defp update_callbacks(result, _module), do: result
+
+  defp delete_callbacks({:ok, thing} = result, module) do
+    module.after_delete(thing)
+    result
+  end
+
+  defp delete_callbacks(result, _module), do: result
+  
   defp changeset(struct, attributes, module) do
     if Kernel.function_exported?(module, :changeset, 2) do
       module.changeset(struct, attributes)

@@ -422,6 +422,13 @@ defmodule Endon do
 
       def last(conditions \\ [], opts \\ []),
         do: Helpers.last(@repo, __MODULE__, conditions, opts)
+
+      def after_create(thing), do: thing
+      def after_update(thing), do: thing
+      def after_delete(thing), do: thing
+      def after_save(thing), do: thing
+
+      defoverridable [after_create: 1, after_update: 1, after_delete: 1, after_save: 1]
     end
   end
 end
