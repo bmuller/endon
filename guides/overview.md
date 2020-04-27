@@ -43,6 +43,7 @@ defmodule User do
   use Endon
   # or, give the Repo module:
   # use Endon, repo: MyApp.Repo
+
   use Ecto.Schema
 
   schema "users" do
