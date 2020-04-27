@@ -1,26 +1,22 @@
 # Overview
 
-Endon is an Elixir library that provides helper functions for [Ecto](https://hexdocs.pm/ecto/getting-started.html#content), with inspiration from Ruby on Rails' [ActiveRecord](https://guides.rubyonrails.org/active_record_basics.html).  It's designed to be used within a module that is an `Ecto.Schema` and provides helpful functions.
+Endon is an Elixir library that provides helper functions for [Ecto](https://hexdocs.pm/ecto), with inspiration from Ruby on Rails' [ActiveRecord](https://guides.rubyonrails.org/active_record_basics.html).  It's designed to be used within a module that is an `Ecto.Schema` and provides helpful functions.
 
-## But why, Ecto is great
-Yes, Ecto is great.  But there are a few things that are really annoying, and a little syntactic sugar can go a long way.
+#### But why, Ecto is great
+Yes, Ecto is great!  But there are a few things that are really annoying, and a little syntactic sugar can go a long way.  See the [Features](./features.html) page for more info.
 
-1. What if I want to [paginate through a massive query](https://api.rubyonrails.org/classes/ActiveRecord/Batches.html#method-i-find_in_batches)?
-1. Or [find records based on a few primary key values](https://api.rubyonrails.org/classes/ActiveRecord/FinderMethods.html#method-i-find)?
-1. Or limit the number of records deleted from a query?
-1. Or deal with [one to many / many to many](https://api.rubyonrails.org/classes/ActiveRecord/Associations/CollectionProxy.html) relationships?
-
-There are a few [other](https://github.com/meyercm/base_model) [examples](http://rocket-science.ru/hacking/2018/10/30/active-record-smell-in-elixir) of starts to bringing some helpful methods to Ecto, but none are quite complete or work with Ecto 3.
+#### What does Endon mean?
+"Ecto" is a prefix from Greek έκτός (ektós) meaning "outside".  The opposite of Ecto is "Endon" (Greek ἔνδον) means "within, inner, absorbing, or containing".  Why the opposite of Ecto?  No good reason at all; naming is hard.
 
 ## Installation
 
 To install Endon, just add an entry to your `mix.exs`:
 
-``` elixir
+```elixir
 def deps do
   [
     # ...
-    {:endon, "~> 0.1"}
+    {:endon, "~> 1.0"}
   ]
 end
 ```
@@ -31,20 +27,22 @@ end
 
 In your `config/config.exs` you can set a few options:
 
-``` elixir
+```elixir
 config :endon,
   repo: MyModule.Repo
 ```
 
-The `repo` should be the name of the [Ecto.Repo](https://hexdocs.pm/ecto/Ecto.Repo.html) in your application.
+The `repo` should be the name of the [Ecto.Repo](https://hexdocs.pm/ecto/Ecto.Repo.html) in your application.  You can alternatively set this per schema module.
 
 ## Usage
 
 To get started, add `use Endon` to each module where you'd like to use it.  For example:
 
-``` elixir
+```elixir
 defmodule User do
   use Endon
+  # or, give the Repo module:
+  # use Endon, repo: MyApp.Repo
   use Ecto.Schema
 
   schema "users" do
@@ -57,7 +55,7 @@ end
 
 Once Endon has been included, you can immediately use [the many helpful methods](`Endon`) provided in the `Endon` module.
 
-``` elixir
+```elixir
 # get all users
 user = User.all()
 
@@ -99,7 +97,7 @@ end)
 
 To run tests:
 
-``` shell
+```shell
 $> mix test
 ```
 

@@ -1,6 +1,6 @@
 defmodule EndonTest do
   use ExUnit.Case
-  alias Endon.{RecordNotFoundError, ValidationError}
+  alias Ecto.{InvalidChangesetError, NoResultsError}
 
   describe "building queries via scope" do
     import UserHelpers
@@ -51,11 +51,11 @@ defmodule EndonTest do
       assert UserSingle.find(1) == "from u0 in UserSingle, where: u0.id in ^[1]"
       assert UserDouble.find([1, 2]) == ["from u0 in UserDouble, where: u0.id in ^[1, 2]", nil]
 
-      assert_raise(RecordNotFoundError, fn ->
+      assert_raise(NoResultsError, fn ->
         UserSingle.find([1, 2])
       end)
 
-      assert_raise(RecordNotFoundError, fn ->
+      assert_raise(NoResultsError, fn ->
         UserNone.find(1)
       end)
     end
@@ -89,7 +89,7 @@ defmodule EndonTest do
       us = UserOK.update!(%UserSingle{}, id: 1)
       assert us.changes == %{id: 1}
 
-      assert_raise(ValidationError, fn ->
+      assert_raise(InvalidChangesetError, fn ->
         UserError.update!(%UserSingle{}, id: 1)
       end)
     end
@@ -108,7 +108,7 @@ defmodule EndonTest do
       us = UserOK.create!(id: 1)
       assert us.changes == %{id: 1}
 
-      assert_raise(ValidationError, fn ->
+      assert_raise(InvalidChangesetError, fn ->
         UserError.create!(id: 1)
       end)
     end
@@ -120,15 +120,15 @@ defmodule EndonTest do
       assert us == %UserOK{id: 1}
 
       {:error, us} = UserError.delete(%UserOK{id: 1})
-      assert us.input == %UserOK{id: 1}
+      assert us.data == %UserOK{id: 1}
     end
 
     test "when calling delete!" do
       us = UserOK.delete!(%UserOK{id: 1})
       assert us == %UserOK{id: 1}
 
-      assert_raise(ValidationError, "Could not delete Elixir.UserError: \"sorry\"", fn ->
-        UserError.delete!(%UserOK{id: 1})
+      assert_raise(InvalidChangesetError, fn ->
+        UserError.delete!(%UserError{id: 1})
       end)
     end
   end

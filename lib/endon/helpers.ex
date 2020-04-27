@@ -1,9 +1,8 @@
 defmodule Endon.Helpers do
   @moduledoc false
   import Ecto.Query, only: [from: 2]
-  alias Ecto.Query
 
-  alias Endon.{RecordNotFoundError, ValidationError}
+  alias Ecto.{InvalidChangesetError, NoResultsError, Query}
 
   def all(repo, module, opts) do
     module
@@ -21,9 +20,8 @@ defmodule Endon.Helpers do
     end
   end
 
-  def delete(repo, _module, struct) do
-    struct |> repo.delete()
-  end
+  def delete(repo, _module, struct),
+    do: repo.delete(struct)
 
   def delete!(repo, module, struct) do
     case delete(repo, module, struct) do
@@ -31,16 +29,14 @@ defmodule Endon.Helpers do
         result
 
       {:error, changeset} ->
-        raise ValidationError,
-          message: "Could not delete #{module}: #{inspect(changeset.errors)}",
-          changeset: changeset
+        raise InvalidChangesetError, action: "delete!", changeset: changeset
     end
   end
 
   def delete_where(repo, module, conditions) do
     module
     |> add_where(conditions)
-    |> repo.delete_all
+    |> repo.delete_all()
   end
 
   def find(repo, module, ids, opts) do
@@ -50,7 +46,7 @@ defmodule Endon.Helpers do
 
       :error ->
         [pk] = module.__schema__(:primary_key)
-        raise RecordNotFoundError, message: "One or more values for #{pk} could not be found"
+        raise NoResultsError, queryable: add_where(module, [{pk, ids}])
     end
   end
 
@@ -62,8 +58,8 @@ defmodule Endon.Helpers do
 
   def fetch(repo, module, id, opts) do
     case fetch(repo, module, [id], opts) do
-      {:ok, results} ->
-        {:ok, hd(results)}
+      {:ok, [result]} ->
+        {:ok, result}
 
       :error ->
         :error
@@ -71,13 +67,26 @@ defmodule Endon.Helpers do
   end
 
   def find_or_create_by(repo, module, conditions) do
-    case where(repo, module, Enum.into(conditions, []), limit: 1) do
-      [result] ->
-        {:ok, result}
-
-      [] ->
-        create(repo, module, conditions)
+    case do_find_or_create_by(repo, module, conditions) do
+      {:ok, result} -> result
+      other -> other
     end
+  end
+
+  # This will return one of:
+  # {:ok, {:ok, record}} which means we were able to find/create
+  # {:ok, {:error, changeset}} which means were didn't find but couldn't create
+  # {:error, reason} which means there was an issue in the transaction
+  defp do_find_or_create_by(repo, module, conditions) do
+    repo.transaction(fn ->
+      case where(repo, module, conditions, limit: 1) do
+        [result] ->
+          {:ok, result}
+
+        [] ->
+          create(repo, module, conditions)
+      end
+    end)
   end
 
   def stream_where(repo, module, conditions, opts) do
@@ -126,14 +135,14 @@ defmodule Endon.Helpers do
     module
     |> add_where(conditions)
     |> add_opts([limit: 1] ++ opts, [:limit, :preload])
-    |> repo.one
+    |> repo.one()
   end
 
   def where(repo, module, conditions, opts) do
     module
     |> add_where(conditions)
     |> add_opts(opts, [:limit, :order_by, :offset, :preload])
-    |> repo.all
+    |> repo.all()
   end
 
   def count(repo, module, conditions) do
@@ -148,6 +157,9 @@ defmodule Endon.Helpers do
     |> repo.aggregate(aggregate, column)
   end
 
+  def update(repo, module, struct, params) when is_list(params),
+    do: update(repo, module, struct, Enum.into(params, %{}))
+
   def update(repo, module, struct, params) do
     struct
     |> changeset(params, module)
@@ -160,9 +172,7 @@ defmodule Endon.Helpers do
         result
 
       {:error, changeset} ->
-        raise ValidationError,
-          message: "Could not create #{module}: #{inspect(changeset.errors)}",
-          changeset: changeset
+        raise InvalidChangesetError, action: "update!", changeset: changeset
     end
   end
 
@@ -172,20 +182,25 @@ defmodule Endon.Helpers do
     |> repo.update_all(set: params)
   end
 
-  def first(repo, module, conditions, opts) do
-    opts = Keyword.merge([limit: 1], opts)
+  def first(repo, module, count, opts) do
+    {conditions, opts} = Keyword.pop(opts, :conditions, [])    
+    opts = Keyword.put_new(opts, :limit, count)
     result = where(repo, module, conditions, opts)
     if opts[:limit] == 1, do: first_or_nil(result), else: result
   end
 
-  def last(repo, module, conditions, opts) do
+  def last(repo, module, count, opts) do
+    {conditions, opts} = Keyword.pop(opts, :conditions, [])        
     [pk] = module.__schema__(:primary_key)
-    opts = Keyword.merge([limit: 1, order_by: [desc: pk]], opts)
+    opts = Keyword.merge([limit: count, order_by: [desc: pk]], opts)
     result = where(repo, module, conditions, opts)
     if opts[:limit] == 1, do: first_or_nil(result), else: result
   end
 
-  def create(repo, module, params) do
+  def create(repo, module, params) when is_list(params),
+    do: create(repo, module, Enum.into(params, %{}))
+
+  def create(repo, module, params) when is_map(params) do
     module.__struct__
     |> changeset(params, module)
     |> repo.insert()
@@ -197,17 +212,14 @@ defmodule Endon.Helpers do
         result
 
       {:error, changeset} ->
-        raise ValidationError,
-          message: "Could not create #{module}: #{inspect(changeset.errors)}",
-          changeset: changeset
+        raise InvalidChangesetError, action: "create!", changeset: changeset
     end
   end
 
-  def scope(query, conditions) do
-    add_where(query, conditions)
-  end
+  def scope(query, conditions),
+    do: add_where(query, conditions)
 
-  # private
+  # # private
   defp changeset(struct, attributes, module) do
     if Kernel.function_exported?(module, :changeset, 2) do
       module.changeset(struct, attributes)
@@ -235,18 +247,22 @@ defmodule Endon.Helpers do
   defp apply_opt(query, :offset, offset), do: Query.offset(query, ^offset)
 
   defp add_where(query, []), do: query
+
   # this works because we only ever call add_where with a first argument
   # of the struct itself
   defp add_where(_query, %Ecto.Query{} = conditions), do: conditions
 
+  defp add_where(query, params) when is_map(params),
+    do: add_where(query, Enum.into(params, []))
+
   defp add_where(query, [{f, v} | rest]) when is_list(v) do
     query = from(x in query, where: field(x, ^f) in ^v)
-    query |> add_where(rest)
+    add_where(query, rest)
   end
 
   defp add_where(query, [{f, nil} | rest]) do
     query = from(x in query, where: is_nil(field(x, ^f)))
-    query |> add_where(rest)
+    add_where(query, rest)
   end
 
   defp add_where(query, [{f, v} | rest]) do

@@ -1,7 +1,7 @@
 defmodule Endon.MixProject do
   use Mix.Project
 
-  @version "0.1.1"
+  @version "1.0.0"
 
   def project do
     [
@@ -11,23 +11,23 @@ defmodule Endon.MixProject do
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      description: "ActiveRecord type helpers for Ecto 3+",
+      description: "Ecto query helpers, inspired by ActiveRecord",
       package: package(),
       source_url: "https://github.com/bmuller/endon",
       docs: [
         extra_section: "GUIDES",
         source_ref: "v#{@version}",
         main: "overview",
-        formatters: ["html", "epub"],
-        extras: extras(),
-        groups_for_extras: groups_for_extras()
+        formatters: ["html"],
+        extras: extras()
       ]
     ]
   end
 
   defp extras do
     [
-      "guides/overview.md"
+      "guides/overview.md",
+      "guides/features.md"
     ]
   end
 
@@ -41,15 +41,9 @@ defmodule Endon.MixProject do
     ]
   end
 
-  defp groups_for_extras do
-    [
-      Introduction: ~r/guides\/introduction\/.*/
-    ]
-  end
-
   def package do
     [
-      files: ["lib", "mix.exs", "README*", "LICENSE*"],
+      files: ~w(lib mix.exs README.md LICENSE CHANGELOG.md),
       maintainers: ["Brian Muller"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/bmuller/endon"}
@@ -67,8 +61,8 @@ defmodule Endon.MixProject do
   defp deps do
     [
       {:ecto, "~> 3.0"},
-      {:ex_doc, "~> 0.18", only: :dev},
-      {:credo, "~> 1.0", only: [:dev, :test], runtime: false}
+      {:ex_doc, "~> 0.21", only: :dev},
+      {:credo, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
 end

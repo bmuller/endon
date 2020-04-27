@@ -1,40 +1,27 @@
 defmodule Endon do
   @moduledoc ~S"""
   Endon is an Elixir library that provides helper functions for [Ecto](https://hexdocs.pm/ecto/getting-started.html#content),
-  with inspiration from Ruby on Rails' [ActiveRecord](https://guides.rubyonrails.org/active_record_basics.html).
+  with some inspiration from Ruby on Rails' [ActiveRecord](https://guides.rubyonrails.org/active_record_basics.html).
 
-  It's designed to be used within a module that is an Ecto.Schema and
-  provides helpful functions.
-
-  ## Example
-
-      defmodule User do
-        use Endon
-        use Ecto.Schema
-
-        schema "users" do
-          field :name, :string
-          field :age, :integer, default: 0
-          has_many :posts, Post
-        end
-      end
-
-  Once Endon has been included, you can immediately use the helpful methods below.  For instance:
-
-      iex> user = User.find(1)
-      iex> user = User.find_by(name: "billy")
-      iex> count = User.count()
-      iex> user = User.create!(name: "snake", age: 12)
-      iex> User.update!(user, age: 23)
-      iex> User.where([age: 23], preload: :posts)
+  It's designed to be used within a module that is an `Ecto.Schema` and
+  provides helpful functions.  See the [overview](overview.html) and [features page](features.html)
+  for examples.
   """
 
-  alias Endon.{Helpers}
+  alias Endon.Helpers
 
   @doc """
   Fetches all entries from the data store matching the given query.
 
-  `opts` can be any of `:order_by`, `:preload`, or `:offset`
+  Limit results to those matching these conditions.  Value can be
+  anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
+
+  ## Options
+
+    * `:order_by` - By default, orders by primary key ascending
+    * `:preload` - A list of fields to preload, much like `Ecto.Repo.preload/3`
+    * `:offset` - Number to offset by
+
   """
   @spec all(opts :: keyword()) :: list(Ecto.Schema.t())
   def all(opts \\ []), do: doc!([opts])
@@ -42,9 +29,14 @@ defmodule Endon do
   @doc """
   Fetch all entries that match the given conditions.
 
-  The conditions can be a `Ecto.Query.t/0` or a `Keyword.t/0`.
+  The conditions can be a `t:Ecto.Query.t/0` or a `t:Keyword.t/0`.
 
-  The options can be any of: `:limit`, `:order_by`, `:offset`, `:preload`.
+  ## Options
+
+    * `:order_by` - By default, orders by primary key ascending
+    * `:preload` - A list of fields to preload, much like `Ecto.Repo.preload/3`
+    * `:offset` - Number to offset by
+    * `:limit` - Limit results to the given count
 
   ## Examples
       
@@ -70,14 +62,17 @@ defmodule Endon do
 
   Much like `fetch/2`, except an error is raised if the record(s) can't be found.
 
-  If one primary key is given, then one struct will be returned (or a `Endon.RecordNotFoundError`
+  If one primary key is given, then one struct will be returned (or a `Ecto.NoResultsError`
   raised if a match isn't found).
 
   If more than one primary key is given in a list, then all of the structs with those ids
-  will be returned (and a `Endon.RecordNotFoundError` will be raised if any one of the primary 
+  will be returned (and a `Ecto.NoResultsError` will be raised if any one of the primary 
   keys can't be found).
 
-  The only option that matters here is `:preload`.
+  ## Options
+
+    * `:preload` - A list of fields to preload, much like `Ecto.Repo.preload/3`
+
   """
   @spec find(integer() | list(integer()), keyword()) :: list(Ecto.Schema.t()) | Ecto.Schema.t()
   def find(id_or_ids, opts \\ []), do: doc!([id_or_ids, opts])
@@ -91,7 +86,10 @@ defmodule Endon do
   will be returned (and `:error` will be returned if any one of the primary
   keys can't be found).
 
-  The only option that matters here is `:preload`.
+  ## Options
+
+    * `:preload` - A list of fields to preload, much like `Ecto.Repo.preload/3`
+
   """
   @spec fetch(integer() | list(integer()), keyword()) ::
           {:ok, list(Ecto.Schema.t())} | {:ok, Ecto.Schema.t()} | :error
@@ -114,7 +112,10 @@ defmodule Endon do
 
   If a record can't be found, then `nil` is returned.
 
-  The only option that matters here is `:preload`.
+  ## Options
+
+    * `:preload` - A list of fields to preload, much like `Ecto.Repo.preload/3`
+
   """
   @spec find_by(keyword(), keyword()) :: Ecto.Schema.t() | nil
   def find_by(conditions, opts \\ []), do: doc!([conditions, opts])
@@ -126,14 +127,14 @@ defmodule Endon do
   is a composable, lazy enumerable that allows you to iterate through what could be a
   very large number of records efficiently.
 
-  `opts` can be any of:
-  * batch_size: Specifies the size of the batch. Defaults to 1000.
-  * start: Specifies the primary key value to start from, inclusive of the value.
-  * finish: Specifies the primary key value to end at, inclusive of the value.
-
-  And `conditions` are anyting accepted by `where/2` (including a `Ecto.Query.t/0`).
-
+  The `conditions` are anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   This function will only work for types that have a primary key that is an integer.
+
+  ## Options
+
+    * `:batch_size` - Specifies the size of the batch. Defaults to 1000.
+    * `:start` - Specifies the primary key value to start from, inclusive of the value.
+    * `:finish` - Specifies the primary key value to end at, inclusive of the value.
 
   ## Examples
       
@@ -143,15 +144,18 @@ defmodule Endon do
       iex> Enum.each(User.stream_where(query, batch_size: 10), fn user ->
       iex>   User.do_some_processing(user)
       iex> end)
+
   """
   @spec stream_where(keyword(), keyword()) :: Enumerable.t()
   def stream_where(conditions \\ [], opts \\ []), do: doc!([conditions, opts])
 
   @doc """
-  Get a count of all records matching the conditions.  You can give an optional column;
+  Get a count of all records matching the conditions.
+
+  You can give an optional column;
   if none is specified, then it's the equivalent of a `select count(*)`.
 
-  `conditions` are anyting accepted by `where/2` (including a `Ecto.Query.t/0`).
+  `conditions` are anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
   @spec count(atom() | nil, keyword() | Ecto.Query.t()) :: integer()
   def count(column \\ nil, conditions \\ []), do: doc!([column, conditions])
@@ -159,7 +163,7 @@ defmodule Endon do
   @doc """
   Calculate the given aggregate over the given column.
 
-  `conditions` are anyting accepted by `where/2` (including a `Ecto.Query.t/0`).
+  `conditions` are anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
   @spec aggregate(atom(), :avg | :count | :max | :min | :sum, keyword() | Ecto.Query.t()) ::
           term() | nil
@@ -168,7 +172,7 @@ defmodule Endon do
   @doc """
   Get the sum of a given column.
 
-  `conditions` are anyting accepted by `where/2` (including a `Ecto.Query.t/0`).
+  `conditions` are anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
   @spec sum(String.t() | atom(), keyword()) :: integer()
   def sum(column, conditions \\ []), do: doc!([column, conditions])
@@ -176,7 +180,7 @@ defmodule Endon do
   @doc """
   Get the average of a given column.
 
-  `conditions` are anyting accepted by `where/2` (including a `Ecto.Query.t/0`).
+  `conditions` are anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
   @spec avg(String.t() | atom(), keyword()) :: float()
   def avg(column, conditions \\ []), do: doc!([column, conditions])
@@ -184,7 +188,7 @@ defmodule Endon do
   @doc """
   Get the minimum value of a given column.
 
-  `conditions` are anyting accepted by `where/2` (including a `Ecto.Query.t/0`).
+  `conditions` are anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
   @spec min(String.t() | atom(), keyword()) :: float() | integer()
   def min(column, conditions \\ []), do: doc!([column, conditions])
@@ -192,7 +196,7 @@ defmodule Endon do
   @doc """
   Get the maximum value of a given column.
 
-  `conditions` are anyting accepted by `where/2` (including a `Ecto.Query.t/0`).
+  `conditions` are anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
   @spec max(String.t() | atom(), keyword()) :: float() | integer()
   def max(column, conditions \\ []), do: doc!([column, conditions])
@@ -213,7 +217,7 @@ defmodule Endon do
 
   `params` can be either a `Keyword` list or `Map` of attributes and values. 
 
-  Returns the struct if created, or raises a `Endon.ValidationError` if there was
+  Returns the struct if created, or raises a `Ecto.InvalidChangesetError` if there was
   a validation error.
   """
   @spec create!(keyword() | struct()) :: Ecto.Schema.t()
@@ -222,7 +226,7 @@ defmodule Endon do
   @doc """
   Update a record in the data store.
 
-  The `struct` must be a `Ecto.Schema.t/0` (your module that uses `Ecto.Schema`).
+  The `struct` must be a `t:Ecto.Schema.t/0` (your module that uses `Ecto.Schema`).
   `params` can be either a `Keyword` list or `Map` of attributes and values. 
 
   Returns `{:ok, struct}` if one is created, or `{:error, changeset}` if there is
@@ -235,10 +239,10 @@ defmodule Endon do
   @doc """
   Update a record in the data store.
 
-  The `struct` must be a `Ecto.Schema.t/0` (your module that uses `Ecto.Schema`).
+  The `struct` must be a `t:Ecto.Schema.t/0` (your module that uses `Ecto.Schema`).
   `params` can be either a `Keyword` list or `Map` of attributes and values. 
 
-  Returns the struct if it was updated, or raises a `Endon.ValidationError` if there was
+  Returns the struct if it was updated, or raises a `Ecto.InvalidChangesetError` if there was
   a validation error.
   """
   @spec update!(Ecto.Schema.t(), keyword() | struct()) :: Ecto.Schema.t()
@@ -260,7 +264,7 @@ defmodule Endon do
   @doc """
   Delete a record in the data store.
 
-  The `struct` must be a `Ecto.Schema.t/0` (your module that uses `Ecto.Schema`).
+  The `struct` must be a `t:Ecto.Schema.t/0` (your module that uses `Ecto.Schema`).
 
   Returns `{:ok, struct}` if the record is deleted, or `{:error, changeset}` if there is
   a validation error.
@@ -271,9 +275,9 @@ defmodule Endon do
   @doc """
   Delete a record in the data store.
 
-  The `struct` must be a `Ecto.Schema.t/0` (your module that uses `Ecto.Schema`).
+  The `struct` must be a `t:Ecto.Schema.t/0` (your module that uses `Ecto.Schema`).
 
-  Returns the struct if it was deleted, or raises a `Endon.ValidationError` if there was
+  Returns the struct if it was deleted, or raises a `Ecto.InvalidChangesetError` if there was
   a validation error.
   """
   @spec delete!(Ecto.Schema.t()) :: Ecto.Schema.t()
@@ -288,6 +292,15 @@ defmodule Endon do
 
   It returns a tuple containing the number of entries and any returned result as second element.
   The second element is nil by default unless a select is supplied in the update query.
+
+  ## Examples
+
+      # this line using Ecto.Repo
+      from(p in Post, where: p.user_id == 123) |> MyRepo.delete_all
+     
+      # is the same as this line in Endon
+      Post.delete_where(user_id: 123)
+
   """
   @spec delete_where(keyword()) :: {integer(), nil | [term()]}
   def delete_where(conditions \\ []), do: doc!([conditions])
@@ -298,11 +311,16 @@ defmodule Endon do
   Find the first record (or first N records if a `:limit` opt parameter is supplied).
   If no order is defined it will order by primary key.
 
-  `opts` can include `:limit` and `:order_by` (by default, orders by primary key ascending).
-  `conditions` can be anyting accepted by `where/2` (including a `Ecto.Query.t/0`).
+  ## Options
+
+    * `:limit` - The number to return.  By default, 1
+    * `:order_by` - By default, orders by primary key ascending
+    * `:conditions` - Limit results to those matching these conditions.  Value can be
+      anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
+
   """
-  @spec first(keyword(), keyword()) :: Ecto.Schema.t() | nil
-  def first(conditions \\ [], opts \\ []), do: doc!([conditions, opts])
+  @spec first(integer(), keyword()) :: Ecto.Schema.t() | nil
+  def first(count \\ 1, opts \\ []), do: doc!([count, opts])
 
   @doc """
   Get the last record, or `nil` if none are found.
@@ -310,14 +328,20 @@ defmodule Endon do
   Find the last record (or last N records if a `:limit` opt parameter is supplied).
   If no order is defined it will order by primary key descending.
 
-  `opts` can include `:limit` and `:order_by` (by default, orders by primary key descending).
-  `conditions` can be anyting accepted by `where/2` (including a `Ecto.Query.t/0`).
+  ## Options
+
+    * `:limit` - The number to return.  By default, 1
+    * `:order_by` - By default, orders by primary key descending
+    * `:conditions` - Limit results to those matching these conditions.  Value can be
+      anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
+
   """
-  @spec last(keyword(), keyword()) :: Ecto.Schema.t() | nil
-  def last(conditions \\ [], opts \\ []), do: doc!([conditions, opts])
+  @spec last(integer(), keyword()) :: Ecto.Schema.t() | nil
+  def last(count \\ 1, opts \\ []), do: doc!([count, opts])
 
   @doc """
   Take a query and add conditions (the same as `where/2` accepts).  
+
   This will not actually run the query, so you will need
   to pass the result to `where/2` or `Ecto.Repo.all/2`/`Ecto.Repo.one/2`.
 
@@ -333,6 +357,7 @@ defmodule Endon do
 
   @doc """
   Create a query with the given conditions (the same as `where/2` accepts).
+
   This will not actually run the query, so you will need
   to pass the result to `where/2` or `Ecto.Repo.all/2`/`Ecto.Repo.one/2`.
 
@@ -355,59 +380,26 @@ defmodule Endon do
     quote bind_quoted: [repo: repo] do
       @repo repo
 
-      def scope(query, conditions), do: Helpers.scope(query, conditions)
-      def scope(conditions), do: Helpers.scope(__MODULE__, conditions)
-
-      def all(opts \\ []), do: Helpers.all(@repo, __MODULE__, opts)
-
-      def where(conditions, opts \\ []), do: Helpers.where(@repo, __MODULE__, conditions, opts)
-      def exists?(conditions), do: Helpers.exists?(@repo, __MODULE__, conditions)
-
-      def find(id_or_ids, opts \\ []), do: Helpers.find(@repo, __MODULE__, id_or_ids, opts)
-      def fetch(id_or_ids, opts \\ []), do: Helpers.fetch(@repo, __MODULE__, id_or_ids, opts)
-
-      def find_or_create_by(%{} = params),
-        do: Helpers.find_or_create_by(@repo, __MODULE__, params)
-
-      def find_or_create_by(params) when is_list(params),
-        do: find_or_create_by(Enum.into(params, %{}))
-
-      def find_by(conditions, opts \\ []),
-        do: Helpers.find_by(@repo, __MODULE__, conditions, opts)
-
-      def stream_where(conditions \\ [], opts \\ []),
-        do: Helpers.stream_where(@repo, __MODULE__, conditions, opts)
-
       def aggregate(column, aggregate, conditions \\ []),
         do: Helpers.aggregate(@repo, __MODULE__, column, aggregate, conditions)
 
+      def all(opts \\ []),
+        do: Helpers.all(@repo, __MODULE__, opts)
+
+      def avg(column, conditions \\ []),
+        do: aggregate(column, :avg, conditions)
+
       def count(column \\ nil, conditions \\ [])
+
       def count(nil, conditions), do: Helpers.count(@repo, __MODULE__, conditions)
+
       def count(column, conditions), do: aggregate(column, :count, conditions)
-      def sum(column, conditions \\ []), do: aggregate(column, :sum, conditions)
-      def avg(column, conditions \\ []), do: aggregate(column, :avg, conditions)
-      def min(column, conditions \\ []), do: aggregate(column, :min, conditions)
-      def max(column, conditions \\ []), do: aggregate(column, :max, conditions)
 
-      def create(%{} = params), do: Helpers.create(@repo, __MODULE__, params)
-      def create(params) when is_list(params), do: create(Enum.into(params, %{}))
-      def create!(%{} = params), do: Helpers.create!(@repo, __MODULE__, params)
-      def create!(params) when is_list(params), do: create!(Enum.into(params, %{}))
+      def create(params),
+        do: Helpers.create(@repo, __MODULE__, params)
 
-      def update(%{} = struct, %{} = params),
-        do: Helpers.update(@repo, __MODULE__, struct, params)
-
-      def update(%{} = struct, params) when is_list(params),
-        do: update(struct, Enum.into(params, %{}))
-
-      def update!(%{} = struct, %{} = params),
-        do: Helpers.update!(@repo, __MODULE__, struct, params)
-
-      def update!(%{} = struct, params) when is_list(params),
-        do: update!(struct, Enum.into(params, %{}))
-
-      def update_where(params, conditions \\ []),
-        do: Helpers.update_where(@repo, __MODULE__, params, conditions)
+      def create!(params),
+        do: Helpers.create!(@repo, __MODULE__, params)
 
       def delete(%{} = struct),
         do: Helpers.delete(@repo, __MODULE__, struct)
@@ -415,13 +407,61 @@ defmodule Endon do
       def delete!(%{} = struct),
         do: Helpers.delete!(@repo, __MODULE__, struct)
 
-      def delete_where(conditions \\ []), do: Helpers.delete_where(@repo, __MODULE__, conditions)
+      def delete_where(conditions \\ []),
+        do: Helpers.delete_where(@repo, __MODULE__, conditions)
 
-      def first(conditions \\ [], opts \\ []),
-        do: Helpers.first(@repo, __MODULE__, conditions, opts)
+      def exists?(conditions),
+        do: Helpers.exists?(@repo, __MODULE__, conditions)
 
-      def last(conditions \\ [], opts \\ []),
-        do: Helpers.last(@repo, __MODULE__, conditions, opts)
+      def fetch(id_or_ids, opts \\ []),
+        do: Helpers.fetch(@repo, __MODULE__, id_or_ids, opts)
+
+      def find(id_or_ids, opts \\ []),
+        do: Helpers.find(@repo, __MODULE__, id_or_ids, opts)
+
+      def find_by(conditions, opts \\ []),
+        do: Helpers.find_by(@repo, __MODULE__, conditions, opts)
+
+      def find_or_create_by(params),
+        do: Helpers.find_or_create_by(@repo, __MODULE__, params)
+
+      def first(count \\ 1, opts \\ [])
+      def first(count, opts),
+        do: Helpers.first(@repo, __MODULE__, count, opts)
+
+      def last(count \\ 1, opts \\ [])
+      def last(count, opts),      
+        do: Helpers.last(@repo, __MODULE__, count, opts)
+
+      def max(column, conditions \\ []),
+        do: aggregate(column, :max, conditions)
+
+      def min(column, conditions \\ []),
+        do: aggregate(column, :min, conditions)
+
+      def scope(query, conditions),
+        do: Helpers.scope(query, conditions)
+
+      def scope(conditions),
+        do: scope(__MODULE__, conditions)
+
+      def stream_where(conditions \\ [], opts \\ []),
+        do: Helpers.stream_where(@repo, __MODULE__, conditions, opts)
+
+      def sum(column, conditions \\ []),
+        do: aggregate(column, :sum, conditions)
+
+      def update(%{} = struct, params),
+        do: Helpers.update(@repo, __MODULE__, struct, params)
+
+      def update!(%{} = struct, params),
+        do: Helpers.update!(@repo, __MODULE__, struct, params)
+
+      def update_where(params, conditions \\ []),
+        do: Helpers.update_where(@repo, __MODULE__, params, conditions)
+
+      def where(conditions, opts \\ []),
+        do: Helpers.where(@repo, __MODULE__, conditions, opts)
     end
   end
 end

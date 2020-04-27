@@ -63,13 +63,29 @@ defmodule UserOK do
 end
 
 defmodule UserError do
-  defmodule Repo do
-    def update(input), do: {:error, input}
-    def insert(input), do: {:error, input}
-    def delete(input), do: {:error, %{input: input, errors: "sorry"}}
-  end
-
-  use Endon, repo: Repo
+  use Endon, repo: UserError.Repo
   use Ecto.Schema
+  import Ecto.Changeset
+
   schema("users", do: nil)
+
+  def changeset(user, attrs) do
+    cast(user, attrs, [:id])
+  end
+end
+
+defmodule UserError.Repo do
+  import Ecto.Changeset
+
+  def update(input), do: {:error, input}
+  def insert(input), do: {:error, input}
+
+  def delete(input) do
+    changeset =
+      input
+      |> UserError.changeset(%{})
+      |> add_error(:id, "No such id")
+
+    {:error, changeset}
+  end
 end
