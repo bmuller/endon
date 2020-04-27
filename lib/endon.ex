@@ -306,37 +306,63 @@ defmodule Endon do
   def delete_where(conditions \\ []), do: doc!([conditions])
 
   @doc """
-  Get the first record, or `nil` if none are found.
+  Get the first `count` records.
 
-  Find the first record (or first N records if a `:limit` opt parameter is supplied).
-  If no order is defined it will order by primary key.
+  If you ask for one thing (`count` of 1),
+  you will get back the first record or `nil` if none are found.  If you ask for more
+  than one thing (`count` > 1), you'll get back a list of 0 or more records.
 
-  ## Options
-
-    * `:limit` - The number to return.  By default, 1
-    * `:order_by` - By default, orders by primary key ascending
-    * `:conditions` - Limit results to those matching these conditions.  Value can be
-      anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
-
-  """
-  @spec first(integer(), keyword()) :: Ecto.Schema.t() | nil
-  def first(count \\ 1, opts \\ []), do: doc!([count, opts])
-
-  @doc """
-  Get the last record, or `nil` if none are found.
-
-  Find the last record (or last N records if a `:limit` opt parameter is supplied).
-  If no order is defined it will order by primary key descending.
+  If no order is defined it will order by primary key ascending.
 
   ## Options
 
-    * `:limit` - The number to return.  By default, 1
     * `:order_by` - By default, orders by primary key descending
     * `:conditions` - Limit results to those matching these conditions.  Value can be
       anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
 
+  ## Examples
+
+       # get the first 3 posts, will return a list
+       posts = Post.first(3)
+
+       # get the first post, will return one item (or nil if none found)
+       post = Post.first()
+
+       # get the first 3 posts by author id 1
+       posts = Post.first(3, conditions: [author_id: 1])
+
   """
-  @spec last(integer(), keyword()) :: Ecto.Schema.t() | nil
+  @spec first(integer(), keyword()) :: [Ecto.Schema.t()] | Ecto.Schema.t() | nil
+  def first(count \\ 1, opts \\ []), do: doc!([count, opts])
+
+  @doc """
+  Get the last `count` records.
+
+  If you ask for one thing (`count` of 1),
+  you will get back the last record or `nil` if none are found.  If you ask for more
+  than one thing (`count` > 1), you'll get back a list of 0 or more records.
+
+  If no order is defined it will order by primary key descending.
+
+  ## Options
+
+    * `:order_by` - By default, orders by primary key descending
+    * `:conditions` - Limit results to those matching these conditions.  Value can be
+      anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
+
+  ## Examples
+
+       # get the last 3 posts, will return a list
+       posts = Post.last(3)
+
+       # get the last post, will return one item
+       post = Post.last()
+
+       # get the last 3 posts by author id 1
+       posts = Post.last(3, conditions: [author_id: 1])
+
+  """
+  @spec last(integer(), keyword()) :: [Ecto.Schema.t()] | Ecto.Schema.t() | nil
   def last(count \\ 1, opts \\ []), do: doc!([count, opts])
 
   @doc """

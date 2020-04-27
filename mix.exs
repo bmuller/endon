@@ -35,8 +35,8 @@ defmodule Endon.MixProject do
     [
       test: [
         "format --check-formatted",
-        "test",
-        "credo"
+        "credo",
+        "test"
       ]
     ]
   end

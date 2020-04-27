@@ -19,7 +19,8 @@ defmodule EndonTest do
 
     test "should build on a query successfully and run in a where" do
       query = from(x in UserSingle, where: x.id == 1)
-      result = query |> UserSingle.scope(org_id: 123) |> UserSingle.first()
+      scoped = query |> UserSingle.scope(org_id: 123)
+      result = UserSingle.first(1, conditions: scoped)
 
       assert result ==
                "from u0 in UserSingle, where: u0.id == 1, where: u0.org_id == ^123, limit: ^1"
