@@ -426,11 +426,13 @@ defmodule Endon do
         do: Helpers.find_or_create_by(@repo, __MODULE__, params)
 
       def first(count \\ 1, opts \\ [])
+
       def first(count, opts),
         do: Helpers.first(@repo, __MODULE__, count, opts)
 
       def last(count \\ 1, opts \\ [])
-      def last(count, opts),      
+
+      def last(count, opts),
         do: Helpers.last(@repo, __MODULE__, count, opts)
 
       def max(column, conditions \\ []),

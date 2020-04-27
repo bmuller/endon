@@ -183,14 +183,14 @@ defmodule Endon.Helpers do
   end
 
   def first(repo, module, count, opts) do
-    {conditions, opts} = Keyword.pop(opts, :conditions, [])    
+    {conditions, opts} = Keyword.pop(opts, :conditions, [])
     opts = Keyword.put_new(opts, :limit, count)
     result = where(repo, module, conditions, opts)
     if opts[:limit] == 1, do: first_or_nil(result), else: result
   end
 
   def last(repo, module, count, opts) do
-    {conditions, opts} = Keyword.pop(opts, :conditions, [])        
+    {conditions, opts} = Keyword.pop(opts, :conditions, [])
     [pk] = module.__schema__(:primary_key)
     opts = Keyword.merge([limit: count, order_by: [desc: pk]], opts)
     result = where(repo, module, conditions, opts)
