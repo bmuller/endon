@@ -20,7 +20,7 @@ MyRepo.transaction(fn ->
   |> MyRepo.get_by(Post, title: "My post")
   |> case do
     nil ->
-      MyRepo.insert(%Post{title: "My post"})
+      MyRepo.insert!(%Post{title: "My post"})
     post ->
       post
   end
