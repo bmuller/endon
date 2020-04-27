@@ -66,7 +66,7 @@ defmodule Endon do
   raised if a match isn't found).
 
   If more than one primary key is given in a list, then all of the structs with those ids
-  will be returned (and a `Ecto.NoResultsError` will be raised if any one of the primary 
+  will be returned (and a `Ecto.NoResultsError` will be raised if any one of the primary
   keys can't be found).
 
   ## Options
@@ -297,7 +297,7 @@ defmodule Endon do
 
       # this line using Ecto.Repo
       from(p in Post, where: p.user_id == 123) |> MyRepo.delete_all
-     
+
       # is the same as this line in Endon
       Post.delete_where(user_id: 123)
 

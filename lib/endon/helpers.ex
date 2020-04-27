@@ -224,7 +224,7 @@ defmodule Endon.Helpers do
   def scope(query, conditions),
     do: add_where(query, conditions)
 
-  # # private
+  # private
   defp changeset(struct, attributes, module) do
     if Kernel.function_exported?(module, :changeset, 2) do
       module.changeset(struct, attributes)
