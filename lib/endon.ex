@@ -19,7 +19,7 @@ defmodule Endon do
   ## Options
 
     * `:order_by` - By default, orders by primary key ascending
-    * `:preload` - A list of fields to preload, much like `Ecto.Repo.preload/3`
+    * `:preload` - A list of fields to preload, much like `c:Ecto.Repo.preload/3`
     * `:offset` - Number to offset by
 
   """
@@ -34,7 +34,7 @@ defmodule Endon do
   ## Options
 
     * `:order_by` - By default, orders by primary key ascending
-    * `:preload` - A list of fields to preload, much like `Ecto.Repo.preload/3`
+    * `:preload` - A list of fields to preload, much like `c:Ecto.Repo.preload/3`
     * `:offset` - Number to offset by
     * `:limit` - Limit results to the given count
 
@@ -71,7 +71,7 @@ defmodule Endon do
 
   ## Options
 
-    * `:preload` - A list of fields to preload, much like `Ecto.Repo.preload/3`
+    * `:preload` - A list of fields to preload, much like `c:Ecto.Repo.preload/3`
 
   """
   @spec find(integer() | list(integer()), keyword()) :: list(Ecto.Schema.t()) | Ecto.Schema.t()
@@ -88,7 +88,7 @@ defmodule Endon do
 
   ## Options
 
-    * `:preload` - A list of fields to preload, much like `Ecto.Repo.preload/3`
+    * `:preload` - A list of fields to preload, much like `c:Ecto.Repo.preload/3`
 
   """
   @spec fetch(integer() | list(integer()), keyword()) ::
@@ -114,7 +114,7 @@ defmodule Endon do
 
   ## Options
 
-    * `:preload` - A list of fields to preload, much like `Ecto.Repo.preload/3`
+    * `:preload` - A list of fields to preload, much like `c:Ecto.Repo.preload/3`
 
   """
   @spec find_by(keyword(), keyword()) :: Ecto.Schema.t() | nil
@@ -369,7 +369,7 @@ defmodule Endon do
   Take a query and add conditions (the same as `where/2` accepts).  
 
   This will not actually run the query, so you will need
-  to pass the result to `where/2` or `Ecto.Repo.all/2`/`Ecto.Repo.one/2`.
+  to pass the result to `where/2` or `c:Ecto.Repo.all/2`/`c:Ecto.Repo.one/2`.
 
   For instance:
 
@@ -385,7 +385,7 @@ defmodule Endon do
   Create a query with the given conditions (the same as `where/2` accepts).
 
   This will not actually run the query, so you will need
-  to pass the result to `where/2` or `Ecto.Repo.all/2`/`Ecto.Repo.one/2`.
+  to pass the result to `where/2` or `c:Ecto.Repo.all/2`/`c:Ecto.Repo.one/2`.
 
   For instance, this will just run one query to find a record with id 1 with name Bill.
 
