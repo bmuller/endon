@@ -1,7 +1,7 @@
 defmodule Endon.MixProject do
   use Mix.Project
 
-  @version "1.0.0"
+  @version "1.0.1"
 
   def project do
     [
@@ -61,7 +61,7 @@ defmodule Endon.MixProject do
   defp deps do
     [
       {:ecto, "~> 3.0"},
-      {:ex_doc, "~> 0.21", only: :dev},
+      {:ex_doc, "~> 0.22", only: :dev},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end

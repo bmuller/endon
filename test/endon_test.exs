@@ -7,7 +7,7 @@ defmodule EndonTest do
     import Ecto.Query, only: [from: 2]
 
     test "should return the correct query" do
-      result = UserSingle.scope(id: 1) |> i()
+      result = i(UserSingle.scope(id: 1))
       assert result == "from u0 in UserSingle, where: u0.id == ^1"
     end
 
@@ -19,7 +19,7 @@ defmodule EndonTest do
 
     test "should build on a query successfully and run in a where" do
       query = from(x in UserSingle, where: x.id == 1)
-      scoped = query |> UserSingle.scope(org_id: 123)
+      scoped = UserSingle.scope(query, org_id: 123)
       result = UserSingle.first(1, conditions: scoped)
 
       assert result ==
@@ -82,8 +82,8 @@ defmodule EndonTest do
       {:ok, us} = UserOK.update(%UserSingle{}, id: 1)
       assert us.changes == %{id: 1}
 
-      {:error, us} = UserError.update(%UserSingle{}, id: 1)
-      assert us.changes == %{id: 1}
+      {:error, nus} = UserError.update(%UserSingle{}, id: 1)
+      assert nus.changes == %{id: 1}
     end
 
     test "when calling update!" do
@@ -101,8 +101,8 @@ defmodule EndonTest do
       {:ok, us} = UserOK.create(id: 1)
       assert us.changes == %{id: 1}
 
-      {:error, us} = UserError.create(id: 1)
-      assert us.changes == %{id: 1}
+      {:error, nus} = UserError.create(id: 1)
+      assert nus.changes == %{id: 1}
     end
 
     test "when calling create!" do
@@ -117,8 +117,7 @@ defmodule EndonTest do
 
   describe "deleting records should work" do
     test "when calling delete" do
-      {:ok, us} = UserOK.delete(%UserOK{id: 1})
-      assert us == %UserOK{id: 1}
+      assert {:ok, %UserOK{id: 1}} == UserOK.delete(%UserOK{id: 1})
 
       {:error, us} = UserError.delete(%UserOK{id: 1})
       assert us.data == %UserOK{id: 1}

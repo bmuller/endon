@@ -91,10 +91,12 @@ defmodule Endon.Helpers do
 
   def stream_where(repo, module, conditions, opts) do
     [pk] = module.__schema__(:primary_key)
-    {start, opts} = Keyword.pop(opts, :start, 0)
-    {finish, opts} = Keyword.pop(opts, :finish)
-    {limit, opts} = Keyword.pop(opts, :batch_size, 1000)
-    basequery = module |> add_where(conditions) |> add_opts(opts, [:preload])
+    start = Keyword.get(opts, :start, 0)
+    finish = Keyword.get(opts, :finish)
+    limit = Keyword.get(opts, :batch_size, 1000)
+
+    new_opts = Keyword.drop(opts, [:start, :finish, :batch_size])
+    basequery = module |> add_where(conditions) |> add_opts(new_opts, [:preload])
 
     query =
       if is_nil(finish) do
@@ -146,7 +148,7 @@ defmodule Endon.Helpers do
   end
 
   def count(repo, module, conditions) do
-    query = module |> add_where(conditions)
+    query = add_where(module, conditions)
     cquery = from(r in query, select: count())
     repo.one(cquery)
   end
@@ -184,22 +186,22 @@ defmodule Endon.Helpers do
 
   def first(repo, module, count, opts) do
     {conditions, opts} = Keyword.pop(opts, :conditions, [])
-    opts = Keyword.put(opts, :limit, count)
-    result = where(repo, module, conditions, opts)
-    if opts[:limit] == 1, do: first_or_nil(result), else: result
+    where_opts = Keyword.put(opts, :limit, count)
+    result = where(repo, module, conditions, where_opts)
+    if where_opts[:limit] == 1, do: first_or_nil(result), else: result
   end
 
   def last(repo, module, count, opts) do
     {conditions, opts} = Keyword.pop(opts, :conditions, [])
     [pk] = module.__schema__(:primary_key)
 
-    opts =
+    where_opts =
       [order_by: [desc: pk]]
       |> Keyword.merge(opts)
       |> Keyword.put(:limit, count)
 
-    result = where(repo, module, conditions, opts)
-    if opts[:limit] == 1, do: first_or_nil(result), else: result
+    result = where(repo, module, conditions, where_opts)
+    if where_opts[:limit] == 1, do: first_or_nil(result), else: result
   end
 
   def create(repo, module, params) when is_list(params),

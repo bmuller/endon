@@ -439,7 +439,13 @@ defmodule Endon do
       def exists?(conditions),
         do: Helpers.exists?(@repo, __MODULE__, conditions)
 
-      def fetch(id_or_ids, opts \\ []),
+      def fetch(module_or_ids, opts \\ [])
+
+      # this is necessary to not break the implementation for the Access protocol
+      def fetch(%{} = container, key) when is_atom(key),
+        do: Map.fetch(container, key)
+
+      def fetch(id_or_ids, opts),
         do: Helpers.fetch(@repo, __MODULE__, id_or_ids, opts)
 
       def find(id_or_ids, opts \\ []),
