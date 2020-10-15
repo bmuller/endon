@@ -2,10 +2,10 @@ language: elixir
 matrix:
   include:
   - elixir: 1.8
-    otp_release: 22.0
+    otp_release: 22.3
   - elixir: 1.9
-    otp_release: 22.0
+    otp_release: 22.3
   - elixir: 1.10
-    otp_release: 22.0
+    otp_release: 22.3
   - elixir: 1.11
-    otp_release: 23.0
+    otp_release: 23.1
