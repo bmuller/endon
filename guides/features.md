@@ -1,7 +1,7 @@
 # Features
 
 ## Schema Queries
-By setting an application-wide (or schema module specific) `Ecto.Repo` variable, your code doesn't have to mention the repo over and over (see [here](overview.html#configuration) for setup instructions).
+By setting an application-wide (or schema module specific) `Ecto.Repo` variable, your code doesn't have to mention the repo over and over (see [here](../README.md#configuration) for setup instructions).
 
 ```
 # Regular Ecto

@@ -14,7 +14,7 @@ defmodule Endon do
   Fetches all entries from the data store matching the given query.
 
   Limit results to those matching these conditions.  Value can be
-  anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
+  anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
 
   ## Options
 
@@ -39,7 +39,7 @@ defmodule Endon do
     * `:limit` - Limit results to the given count
 
   ## Examples
-      
+
       iex> User.where(id: 1)
       iex> User.where(name: "billy", age: 23)
       iex> User.where([name: "billy", age: 23], limit: 10, order_by: [desc: :id])
@@ -127,7 +127,7 @@ defmodule Endon do
   is a composable, lazy enumerable that allows you to iterate through what could be a
   very large number of records efficiently.
 
-  The `conditions` are anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
+  The `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   This function will only work for types that have a primary key that is an integer.
 
   ## Options
@@ -137,7 +137,7 @@ defmodule Endon do
     * `:finish` - Specifies the primary key value to end at, inclusive of the value.
 
   ## Examples
-      
+
       iex> Enum.each(User.stream_where(), &User.do_some_processing/1)
 
       iex> query = from u in User, where: u.id > 100
@@ -155,7 +155,7 @@ defmodule Endon do
   You can give an optional column;
   if none is specified, then it's the equivalent of a `select count(*)`.
 
-  `conditions` are anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
+  `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
   @spec count(atom() | nil, keyword() | Ecto.Query.t()) :: integer()
   def count(column \\ nil, conditions \\ []), do: doc!([column, conditions])
@@ -163,7 +163,7 @@ defmodule Endon do
   @doc """
   Calculate the given aggregate over the given column.
 
-  `conditions` are anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
+  `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
   @spec aggregate(atom(), :avg | :count | :max | :min | :sum, keyword() | Ecto.Query.t()) ::
           term() | nil
@@ -172,7 +172,7 @@ defmodule Endon do
   @doc """
   Get the sum of a given column.
 
-  `conditions` are anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
+  `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
   @spec sum(String.t() | atom(), keyword()) :: integer()
   def sum(column, conditions \\ []), do: doc!([column, conditions])
@@ -180,7 +180,7 @@ defmodule Endon do
   @doc """
   Get the average of a given column.
 
-  `conditions` are anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
+  `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
   @spec avg(String.t() | atom(), keyword()) :: float()
   def avg(column, conditions \\ []), do: doc!([column, conditions])
@@ -188,7 +188,7 @@ defmodule Endon do
   @doc """
   Get the minimum value of a given column.
 
-  `conditions` are anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
+  `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
   @spec min(String.t() | atom(), keyword()) :: float() | integer()
   def min(column, conditions \\ []), do: doc!([column, conditions])
@@ -196,7 +196,7 @@ defmodule Endon do
   @doc """
   Get the maximum value of a given column.
 
-  `conditions` are anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
+  `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
   @spec max(String.t() | atom(), keyword()) :: float() | integer()
   def max(column, conditions \\ []), do: doc!([column, conditions])
@@ -204,7 +204,7 @@ defmodule Endon do
   @doc """
   Insert a new record into the data store.
 
-  `params` can be either a `Keyword` list or `Map` of attributes and values. 
+  `params` can be either a `Keyword` list or `Map` of attributes and values.
 
   Returns `{:ok, struct}` if one is created, or `{:error, changeset}` if there is
   a validation error.
@@ -215,7 +215,7 @@ defmodule Endon do
   @doc """
   Insert a new record into the data store.
 
-  `params` can be either a `Keyword` list or `Map` of attributes and values. 
+  `params` can be either a `Keyword` list or `Map` of attributes and values.
 
   Returns the struct if created, or raises a `Ecto.InvalidChangesetError` if there was
   a validation error.
@@ -227,7 +227,7 @@ defmodule Endon do
   Update a record in the data store.
 
   The `struct` must be a `t:Ecto.Schema.t/0` (your module that uses `Ecto.Schema`).
-  `params` can be either a `Keyword` list or `Map` of attributes and values. 
+  `params` can be either a `Keyword` list or `Map` of attributes and values.
 
   Returns `{:ok, struct}` if one is created, or `{:error, changeset}` if there is
   a validation error.
@@ -240,7 +240,7 @@ defmodule Endon do
   Update a record in the data store.
 
   The `struct` must be a `t:Ecto.Schema.t/0` (your module that uses `Ecto.Schema`).
-  `params` can be either a `Keyword` list or `Map` of attributes and values. 
+  `params` can be either a `Keyword` list or `Map` of attributes and values.
 
   Returns the struct if it was updated, or raises a `Ecto.InvalidChangesetError` if there was
   a validation error.
@@ -318,7 +318,7 @@ defmodule Endon do
 
     * `:order_by` - By default, orders by primary key descending
     * `:conditions` - Limit results to those matching these conditions.  Value can be
-      anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
+      anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
 
   ## Examples
 
@@ -348,7 +348,7 @@ defmodule Endon do
 
     * `:order_by` - By default, orders by primary key descending
     * `:conditions` - Limit results to those matching these conditions.  Value can be
-      anyting accepted by `where/2` (including a `t:Ecto.Query.t/0`).
+      anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
 
   ## Examples
 
@@ -366,7 +366,7 @@ defmodule Endon do
   def last(count \\ 1, opts \\ []), do: doc!([count, opts])
 
   @doc """
-  Take a query and add conditions (the same as `where/2` accepts).  
+  Take a query and add conditions (the same as `where/2` accepts).
 
   This will not actually run the query, so you will need
   to pass the result to `where/2` or `c:Ecto.Repo.all/2`/`c:Ecto.Repo.one/2`.
