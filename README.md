@@ -1,6 +1,8 @@
 # Endon
 [![Build Status](https://secure.travis-ci.org/bmuller/endon.png?branch=master)](https://travis-ci.org/bmuller/endon)
 [![Hex pm](http://img.shields.io/hexpm/v/endon.svg?style=flat)](https://hex.pm/packages/endon)
+[![Hex pm](https://img.shields.io/hexpm/dt/endon.svg)](https://hex.pm/packages/endon)
+[![hex pm](https://img.shields.io/hexpm/l/endon.svg)](https://hex.pm/packages/endon)
 [![API Docs](https://img.shields.io/badge/api-docs-lightgreen.svg?style=flat)](https://hexdocs.pm/endon/)
 
 Endon is an Elixir library that provides helper functions for [Ecto](https://hexdocs.pm/ecto), with inspiration from Ruby on Rails' [ActiveRecord](https://guides.rubyonrails.org/active_record_basics.html).  It's designed to be used within a module that is an `Ecto.Schema` and provides helpful functions.
@@ -12,7 +14,6 @@ Yes, Ecto is great!  But there are a few things that are really annoying, and a 
 "Ecto" is a prefix from Greek έκτός (ektós) meaning "outside".  The opposite of Ecto is "Endon" (Greek ἔνδον) means "within, inner, absorbing, or containing".  Why the opposite of Ecto?  No good reason at all; naming is hard.
 
 ## Installation
-
 To install Endon, just add an entry to your `mix.exs`:
 
 ``` elixir
@@ -27,7 +28,6 @@ end
 (Check [Hex](https://hex.pm/packages/endon) to make sure you're using an up-to-date version number.)
 
 ## Configuration
-
 In your `config/config.exs` you can set a few options:
 
 ``` elixir
@@ -38,7 +38,6 @@ config :endon,
 The `repo` should be the name of the [Ecto.Repo](https://hexdocs.pm/ecto/Ecto.Repo.html) in your application.  You can alternatively set this per schema module.
 
 ## Usage
-
 To get started, add `use Endon` to each module where you'd like to use it.  For example:
 
 ``` elixir
@@ -98,7 +97,6 @@ end)
 ```
 
 ## Running Tests
-
 To run tests:
 
 ``` shell
@@ -106,5 +104,4 @@ $> mix test
 ```
 
 ## Reporting Issues
-
-Please report all issues [on github](https://github.com/bmuller/endon/issues).
+Please report all issues [on GitHub](https://github.com/bmuller/endon/issues).

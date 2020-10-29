@@ -1,6 +1,7 @@
 defmodule Endon.MixProject do
   use Mix.Project
 
+  @source_url "https://github.com/bmuller/endon"
   @version "1.0.1"
 
   def project do
@@ -13,21 +14,7 @@ defmodule Endon.MixProject do
       deps: deps(),
       description: "Ecto query helpers, inspired by ActiveRecord",
       package: package(),
-      source_url: "https://github.com/bmuller/endon",
-      docs: [
-        extra_section: "GUIDES",
-        source_ref: "v#{@version}",
-        main: "overview",
-        formatters: ["html"],
-        extras: extras()
-      ]
-    ]
-  end
-
-  defp extras do
-    [
-      "guides/overview.md",
-      "guides/features.md"
+      docs: docs()
     ]
   end
 
@@ -46,23 +33,38 @@ defmodule Endon.MixProject do
       files: ~w(lib mix.exs README.md LICENSE CHANGELOG.md),
       maintainers: ["Brian Muller"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/bmuller/endon"}
+      links: %{
+        "Changelog" => "#{@source_url}/blob/master/CHANGELOG.md",
+        "GitHub" => @source_url
+      }
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger]
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:ecto, "~> 3.0"},
       {:ex_doc, "~> 0.22", only: :dev},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp docs do
+    [
+      extra_section: "GUIDES",
+      source_ref: "v#{@version}",
+      source_url: @source_url,
+      main: "readme",
+      formatters: ["html"],
+      extras: [
+        "README.md",
+        "guides/features.md"
+      ]
     ]
   end
 end
