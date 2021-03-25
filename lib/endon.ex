@@ -397,7 +397,7 @@ defmodule Endon do
   def scope(conditions), do: doc!([conditions])
 
   defp doc!(_) do
-    raise "The functions in Endon should not be invoked directly, they're for docs only"
+    raise "The functions in Endon should not be invoked directly; they're for docs only"
   end
 
   defmacro __using__(opts \\ []) do

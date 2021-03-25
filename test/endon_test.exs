@@ -105,6 +105,16 @@ defmodule EndonTest do
       assert nus.changes == %{id: 1}
     end
 
+    test "when calling create with a map" do
+      {:ok, us} = UserOK.create(%{id: 1})
+      assert us.changes == %{id: 1}
+    end
+
+    test "when calling create with a struct" do
+      {:ok, us} = UserOK.create(%UserOK{id: 1})
+      assert us.changes == %{id: 1}
+    end
+
     test "when calling create!" do
       us = UserOK.create!(id: 1)
       assert us.changes == %{id: 1}
