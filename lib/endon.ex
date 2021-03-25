@@ -10,6 +10,8 @@ defmodule Endon do
 
   alias Endon.Helpers
 
+  @type where_conditions() :: Ecto.Query.t() | keyword() | map()
+
   @doc """
   Fetches all entries from the data store matching the given query.
 
@@ -46,7 +48,7 @@ defmodule Endon do
       iex> query = from u in User, where: u.id > 10
       iex> User.where(query, limit: 1)
   """
-  @spec where(keyword() | Ecto.Query.t(), keyword()) :: list(Ecto.Schema.t())
+  @spec where(where_conditions(), keyword()) :: list(Ecto.Schema.t())
   def where(conditions, opts \\ []), do: doc!([conditions, opts])
 
   @doc """
@@ -54,7 +56,7 @@ defmodule Endon do
 
   `conditions` are the same as those accepted by `where/2`.
   """
-  @spec exists?(keyword() | Ecto.Query.t()) :: boolean()
+  @spec exists?(where_conditions()) :: boolean()
   def exists?(conditions), do: doc!([conditions])
 
   @doc """
@@ -104,7 +106,7 @@ defmodule Endon do
   Returns `{:ok, struct}` if one is found/created, or `{:error, changeset}` if there is
   a validation error.
   """
-  @spec find_or_create_by(keyword() | struct()) :: Ecto.Schema.t()
+  @spec find_or_create_by(where_conditions()) :: Ecto.Schema.t()
   def find_or_create_by(params), do: doc!([params])
 
   @doc """
@@ -117,7 +119,7 @@ defmodule Endon do
     * `:preload` - A list of fields to preload, much like `c:Ecto.Repo.preload/3`
 
   """
-  @spec find_by(keyword(), keyword()) :: Ecto.Schema.t() | nil
+  @spec find_by(where_conditions(), keyword()) :: Ecto.Schema.t() | nil
   def find_by(conditions, opts \\ []), do: doc!([conditions, opts])
 
   @doc """
@@ -146,7 +148,7 @@ defmodule Endon do
       iex> end)
 
   """
-  @spec stream_where(keyword(), keyword()) :: Enumerable.t()
+  @spec stream_where(where_conditions(), keyword()) :: Enumerable.t()
   def stream_where(conditions \\ [], opts \\ []), do: doc!([conditions, opts])
 
   @doc """
@@ -157,7 +159,7 @@ defmodule Endon do
 
   `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
-  @spec count(atom() | nil, keyword() | Ecto.Query.t()) :: integer()
+  @spec count(atom() | nil, where_conditions()) :: integer()
   def count(column \\ nil, conditions \\ []), do: doc!([column, conditions])
 
   @doc """
@@ -165,7 +167,7 @@ defmodule Endon do
 
   `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
-  @spec aggregate(atom(), :avg | :count | :max | :min | :sum, keyword() | Ecto.Query.t()) ::
+  @spec aggregate(atom(), :avg | :count | :max | :min | :sum, where_conditions()) ::
           term() | nil
   def aggregate(column, aggregate, conditions \\ []), do: doc!([column, aggregate, conditions])
 
@@ -174,7 +176,7 @@ defmodule Endon do
 
   `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
-  @spec sum(String.t() | atom(), keyword()) :: integer()
+  @spec sum(String.t() | atom(), where_conditions()) :: integer()
   def sum(column, conditions \\ []), do: doc!([column, conditions])
 
   @doc """
@@ -182,7 +184,7 @@ defmodule Endon do
 
   `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
-  @spec avg(String.t() | atom(), keyword()) :: float()
+  @spec avg(String.t() | atom(), where_conditions()) :: float()
   def avg(column, conditions \\ []), do: doc!([column, conditions])
 
   @doc """
@@ -190,7 +192,7 @@ defmodule Endon do
 
   `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
-  @spec min(String.t() | atom(), keyword()) :: float() | integer()
+  @spec min(String.t() | atom(), where_conditions()) :: float() | integer()
   def min(column, conditions \\ []), do: doc!([column, conditions])
 
   @doc """
@@ -198,29 +200,32 @@ defmodule Endon do
 
   `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
   """
-  @spec max(String.t() | atom(), keyword()) :: float() | integer()
+  @spec max(String.t() | atom(), where_conditions()) :: float() | integer()
   def max(column, conditions \\ []), do: doc!([column, conditions])
 
   @doc """
   Insert a new record into the data store.
 
-  `params` can be either a `Keyword` list or `Map` of attributes and values.
+  `params` can be either a `Keyword` list, a `Map` of attributes and values, or a struct
+  of the same type being used to invoke `create/1`
 
   Returns `{:ok, struct}` if one is created, or `{:error, changeset}` if there is
   a validation error.
   """
-  @spec create(keyword() | struct()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
+  @spec create(Ecto.Schema.t() | keyword() | map()) ::
+          {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   def create(params), do: doc!([params])
 
   @doc """
   Insert a new record into the data store.
 
-  `params` can be either a `Keyword` list or `Map` of attributes and values.
+  `params` can be either a `Keyword` list, a `Map` of attributes and values, or a struct
+  of the same type being used to invoke `create!/1`
 
   Returns the struct if created, or raises a `Ecto.InvalidChangesetError` if there was
   a validation error.
   """
-  @spec create!(keyword() | struct()) :: Ecto.Schema.t()
+  @spec create!(Ecto.Schema.t() | keyword() | map()) :: Ecto.Schema.t()
   def create!(params), do: doc!([params])
 
   @doc """
@@ -232,7 +237,7 @@ defmodule Endon do
   Returns `{:ok, struct}` if one is created, or `{:error, changeset}` if there is
   a validation error.
   """
-  @spec update(Ecto.Schema.t(), keyword() | struct()) ::
+  @spec update(Ecto.Schema.t(), keyword() | map()) ::
           {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   def update(struct, params), do: doc!([struct, params])
 
@@ -245,7 +250,7 @@ defmodule Endon do
   Returns the struct if it was updated, or raises a `Ecto.InvalidChangesetError` if there was
   a validation error.
   """
-  @spec update!(Ecto.Schema.t(), keyword() | struct()) :: Ecto.Schema.t()
+  @spec update!(Ecto.Schema.t(), keyword() | map()) :: Ecto.Schema.t()
   def update!(struct, params), do: doc!([struct, params])
 
   @doc """
@@ -258,7 +263,7 @@ defmodule Endon do
   It returns a tuple containing the number of entries and any returned result as second element.
   The second element is nil by default unless a select is supplied in the update query.
   """
-  @spec update_where(keyword(), keyword() | Ecto.Query.t()) :: {integer(), nil | [term()]}
+  @spec update_where(keyword() | map(), where_conditions()) :: {integer(), nil | [term()]}
   def update_where(params, conditions \\ []), do: doc!([params, conditions])
 
   @doc """
@@ -302,7 +307,7 @@ defmodule Endon do
       Post.delete_where(user_id: 123)
 
   """
-  @spec delete_where(keyword()) :: {integer(), nil | [term()]}
+  @spec delete_where(where_conditions()) :: {integer(), nil | [term()]}
   def delete_where(conditions \\ []), do: doc!([conditions])
 
   @doc """
@@ -378,7 +383,7 @@ defmodule Endon do
 
   This is just a helpful function to make adding conditions easier to an existing query.
   """
-  @spec scope(Ecto.Query.t(), keyword()) :: Ecto.Query.t()
+  @spec scope(Ecto.Query.t(), where_conditions()) :: Ecto.Query.t()
   def scope(query, conditions), do: doc!([query, conditions])
 
   @doc """
@@ -393,7 +398,7 @@ defmodule Endon do
 
   This is just a helpful function to make adding conditions easier to an existing `Ecto.Schema`
   """
-  @spec scope(keyword()) :: Ecto.Query.t()
+  @spec scope(where_conditions()) :: Ecto.Query.t()
   def scope(conditions), do: doc!([conditions])
 
   defp doc!(_) do
