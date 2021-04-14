@@ -7,8 +7,11 @@ defmodule EndonTest do
     import Ecto.Query, only: [from: 2]
 
     test "should return the correct query" do
-      result = i(UserSingle.scope(id: 1))
-      assert result == "from u0 in UserSingle, where: u0.id == ^1"
+      kw_result = i(UserSingle.scope(id: 1))
+      assert kw_result == "from u0 in UserSingle, where: u0.id == ^1"
+
+      map_result = i(UserSingle.scope(%{id: 1}))
+      assert map_result == "from u0 in UserSingle, where: u0.id == ^1"
     end
 
     test "should build on a query successfully" do
@@ -38,7 +41,11 @@ defmodule EndonTest do
       assert UserSingle.where(id: 1) == ["from u0 in UserSingle, where: u0.id == ^1"]
     end
 
-    test "when using where with limit" do
+    test "when using where with a map" do
+      assert UserSingle.where(%{id: 1}) == ["from u0 in UserSingle, where: u0.id == ^1"]
+    end
+
+    test "when using where with limit keyword" do
       assert UserSingle.where(id: 1, limit: 2) == [
                "from u0 in UserSingle, where: u0.id == ^1, where: u0.limit == ^2"
              ]
@@ -59,6 +66,14 @@ defmodule EndonTest do
       assert_raise(NoResultsError, fn ->
         UserNone.find(1)
       end)
+    end
+
+    test "when using find_by" do
+      assert UserSingle.find_by(id: 1) ==
+               "from u0 in UserSingle, where: u0.id == ^1, limit: ^1"
+
+      assert UserSingle.find_by(%{id: 2}) ==
+               "from u0 in UserSingle, where: u0.id == ^2, limit: ^1"
     end
 
     test "when using fetch" do
@@ -103,6 +118,16 @@ defmodule EndonTest do
 
       {:error, nus} = UserError.create(id: 1)
       assert nus.changes == %{id: 1}
+    end
+
+    test "when calling create with a map" do
+      {:ok, us} = UserOK.create(%{id: 1})
+      assert us.changes == %{id: 1}
+    end
+
+    test "when calling create with a struct" do
+      {:ok, us} = UserOK.create(%UserOK{id: 1})
+      assert us.changes == %{id: 1}
     end
 
     test "when calling create!" do
