@@ -49,8 +49,8 @@ defmodule Endon.MixProject do
   defp deps do
     [
       {:ecto, "~> 3.0"},
-      {:ex_doc, "~> 0.22", only: :dev},
-      {:credo, "~> 1.4", only: [:dev, :test], runtime: false}
+      {:ex_doc, "~> 0.24", only: :dev},
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
     ]
   end
 
