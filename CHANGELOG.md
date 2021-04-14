@@ -1,5 +1,11 @@
 # Changelog for v1.x
 
+## v1.0.2 (2021-4-14)
+
+### Enhancements
+
+  * Update `create/2` and `create/2` to accept a struct (in addition to a keyword list or map) (PR #2)
+
 ## v1.0.1 (2020-10-15)
 
 ### Bug Fixes
