@@ -1,5 +1,5 @@
 # Endon
-[![Build Status](https://secure.travis-ci.org/bmuller/endon.png?branch=master)](https://travis-ci.org/bmuller/endon)
+[![Build Status](https://github.com/bmuller/endon/actions/workflows/ci.yml/badge.svg)](https://github.com/bmuller/endon/actions/workflows/ci.yml)
 [![Hex pm](http://img.shields.io/hexpm/v/endon.svg?style=flat)](https://hex.pm/packages/endon)
 [![Hex pm](https://img.shields.io/hexpm/dt/endon.svg)](https://hex.pm/packages/endon)
 [![hex pm](https://img.shields.io/hexpm/l/endon.svg)](https://hex.pm/packages/endon)
