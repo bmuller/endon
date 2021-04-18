@@ -14,13 +14,14 @@ defmodule Endon.MixProject do
       deps: deps(),
       description: "Ecto query helpers, inspired by ActiveRecord",
       package: package(),
-      docs: docs()
+      docs: docs(),
+      preferred_cli_env: [test: :test, "ci.test": :test]
     ]
   end
 
   defp aliases do
     [
-      test: [
+      "ci.test": [
         "format --check-formatted",
         "credo",
         "test"
