@@ -1,5 +1,11 @@
 # Changelog for v1.x
 
+## v1.0.3 (next release)
+
+### Enhancements
+
+  * Moduledocs for modules that `use Endon` will now include all the docs for the functions added by Endon.
+
 ## v1.0.2 (2021-4-14)
 
 ### Enhancements
