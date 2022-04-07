@@ -1,10 +1,14 @@
 # Changelog for v1.x
 
-## v1.0.3 (next release)
+## v1.0.3 (2022-04-07)
 
 ### Enhancements
 
   * Moduledocs for modules that `use Endon` will now include all the docs for the functions added by Endon.
+
+### Deprecations
+
+  * Removed support for Elixir 1.8, moved from `Mix.Config` to `Config` usage
 
 ## v1.0.2 (2021-4-14)
 

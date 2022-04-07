@@ -2,14 +2,14 @@ defmodule Endon.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/bmuller/endon"
-  @version "1.0.2"
+  @version "1.0.3"
 
   def project do
     [
       app: :endon,
       aliases: aliases(),
       version: @version,
-      elixir: "~> 1.8",
+      elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       description: "Ecto query helpers, inspired by ActiveRecord",
@@ -50,8 +50,8 @@ defmodule Endon.MixProject do
   defp deps do
     [
       {:ecto, "~> 3.0"},
-      {:ex_doc, "~> 0.24", only: :dev},
-      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
+      {:ex_doc, "~> 0.28", only: :dev},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
     ]
   end
 
