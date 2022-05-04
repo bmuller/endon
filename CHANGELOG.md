@@ -1,5 +1,11 @@
 # Changelog for v1.x
 
+## Unreleased
+
+### Enhancements
+
+  * Typespecs fixed for some aggregate return types (#6)
+
 ## v1.0.3 (2022-04-07)
 
 ### Enhancements
