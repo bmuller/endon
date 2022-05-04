@@ -51,7 +51,7 @@ defmodule Endon do
 
       `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
       """
-      @spec avg(String.t() | atom(), where_conditions()) :: float()
+      @spec avg(String.t() | atom(), where_conditions()) :: float() | nil
       def avg(column, conditions \\ []),
         do: aggregate(column, :avg, conditions)
 
@@ -298,7 +298,7 @@ defmodule Endon do
 
       `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
       """
-      @spec max(String.t() | atom(), where_conditions()) :: float() | integer()
+      @spec max(String.t() | atom(), where_conditions()) :: number() | nil
       def max(column, conditions \\ []),
         do: aggregate(column, :max, conditions)
 
@@ -307,7 +307,7 @@ defmodule Endon do
 
       `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
       """
-      @spec min(String.t() | atom(), where_conditions()) :: float() | integer()
+      @spec min(String.t() | atom(), where_conditions()) :: number() | nil
       def min(column, conditions \\ []),
         do: aggregate(column, :min, conditions)
 
@@ -379,7 +379,7 @@ defmodule Endon do
 
       `conditions` are anything accepted by `where/2` (including a `t:Ecto.Query.t/0`).
       """
-      @spec sum(String.t() | atom(), where_conditions()) :: integer()
+      @spec sum(String.t() | atom(), where_conditions()) :: number() | nil
       def sum(column, conditions \\ []),
         do: aggregate(column, :sum, conditions)
 
