@@ -324,7 +324,7 @@ defmodule Endon do
 
       This is just a helpful function to make adding conditions easier to an existing query.
       """
-      @spec scope(Ecto.Query.t(), where_conditions()) :: Ecto.Query.t()
+      @spec scope(Ecto.Query.t() | module(), where_conditions()) :: Ecto.Query.t()
       def scope(query, conditions),
         do: Helpers.scope(query, conditions)
 
