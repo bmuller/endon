@@ -44,4 +44,4 @@ jobs:
       - if: steps.mix-cache.outputs.cache-hit != 'true'
         run: mix do deps.get, deps.compile
 
-      - run: mix dialyzer --halt-exit-status
+      - run: mix dialyzer
