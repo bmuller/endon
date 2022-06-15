@@ -5,6 +5,7 @@
 ### Enhancements
 
   * Typespecs fixed for some aggregate return types (#6)
+  * Fixed incorrect spec, add dialyxir to CI (#7)
 
 ## v1.0.3 (2022-04-07)
 
