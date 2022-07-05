@@ -1,3 +1,5 @@
+### **NOTE:** This code is now maintained at [parallel-markets/endon](https://github.com/parallel-markets/endon) where it has been permanently moved.  Please see that repo - this repo is maintained here for posterity only.
+
 # Endon
 [![Build Status](https://github.com/bmuller/endon/actions/workflows/ci.yml/badge.svg)](https://github.com/bmuller/endon/actions/workflows/ci.yml)
 [![Hex pm](http://img.shields.io/hexpm/v/endon.svg?style=flat)](https://hex.pm/packages/endon)
